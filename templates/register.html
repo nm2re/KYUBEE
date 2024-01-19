@@ -1,0 +1,62 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+<img src="../static/images/logo.png" width="25%" height="15%" alt="logo" >
+<div class="container" id="container">
+    <div class="form-container sign-up-container">
+        <form action="{{ url_for('register') }}" method="POST" autocomplete="off">
+            <h1>Create Account</h1>
+            <div class="social-container">
+                <a href="#" class="social"><i class="fab fa-facebook-f" ></i></a>
+                <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <span>or use your email for registration</span>
+            {{ form.email(class="") }}
+            {{ form.password(class="") }}
+            {{ form.confirm_password(class="") }}
+
+            {{ form.submit() }}
+
+        </form>
+    </div>
+    <div class="form-container sign-in-container">
+        <form action="#">
+            <h1>Sign in</h1>
+            <div class="social-container">
+                <a href="#" class="social"><i class="fab fa-facebook-f">
+                    <img src = "../static/images/facebook.png" alt = "facebook" width="100%" height="100%" ></i></a>
+                <a href="#" class="social"><i class="fab fa-google-plus-g">
+                    <img src = "../static/images/google.png" alt = "google" width="100%" height="90%" ></i></a>
+                <a href="#" class="social"><i class="fab fa-linkedin-in">
+                    <img src = "../static/images/linkdin.png" alt = "linkedin" width="100%" height="100%" ></i></a>
+            </div>
+            <span>or use your account</span>
+            <input type="username" placeholder="Username" />
+            <input type="email" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <input type="password" placeholder="Confirm Password" />
+            <a href="#">Forgot your password?</a>
+            <button>Sign In</button>
+        </form>
+    </div>
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p>To keep connected with us please login with your personal info</p>
+                <button class="ghost" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1 style="margin-left: 60px;">Hello, Friend!</h1>
+                <p>Enter your personal details and start journey with us</p>
+                <button class="ghost" id="signUp" style="margin-left: 60px; color : #ffc300 ;" >Sign Up</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
