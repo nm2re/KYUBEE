@@ -1,6 +1,6 @@
 
 body {
-	background-image: url("bg5.jpg");
+	background-image: url("../static/images/bg5.jpg");
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -8,6 +8,7 @@ body {
 	font-family: 'Montserrat', sans-serif;
 	height: 100vh;
 	margin: -20px 0 50px;
+	overflow:hidden;
 }
 
 h1 {
@@ -117,7 +118,7 @@ input {
 .sign-up-container {
 	left: 0;
 	width: 50%;
-	opacity: 0;
+	opacity: 100;
 	z-index: 1;
 }
 
