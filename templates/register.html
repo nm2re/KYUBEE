@@ -1,22 +1,40 @@
 <html>
 <head>
     <link rel="stylesheet" href="../static/style.css">
+    <!-- <link rel="stylesheet" href="../static/output.css"> -->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" /> -->
+    
 </head>
 <body>
 <img src="../static/images/logo.png" width="25%" height="15%" alt="logo" >
 <div class="container" id="container">
     <div class="form-container sign-up-container">
+
+
         <form action="{{ url_for('register') }}" method="POST" autocomplete="off">
-            {{form.hidden_tag()}}
+            {{ form.csrf_token }}
+            {{ form.hidden_tag() }}
             <h1>Create Account</h1>
             <br>
-            {{ form.email(class="") }}
-            {{ form.password(class="") }}
-            {{ form.confirm_password(class="") }}
+            {{ form.email() }}
+            {{ form.password() }}
+            {{ form.confirm_password() }}
+
             <br>
-            <button type="submit">Sign Up</button>
+            <!-- <div class="radio-group"> -->
+                <label><input type="radio" name="users" id="student" value="Student" required>Student</label>
+                <label><input type="radio" name="users" id="teacher" value="Teacher" required>Teacher</label>
+            <!-- </div> -->
+            <br>
+                <button type="submit">Sign Up</button>
+            
+            
         </form>
+
+        
     </div>
+
+    
 
 
     <div class="overlay-container">
@@ -24,7 +42,7 @@
             <div class="overlay-panel overlay-right">
                 <h1 style="margin-left: 60px;">Hello, Sign up here!</h1>
                 <p>Already have an Account?</p>
-                <a href="{{ url_for('login') }}"><button class="ghost" id="signUp" style="margin-left: 60px; color : #ffc300 ;" >Login Here</button>
+                <a href="{{ url_for('login') }}"><button class="ghost" id="signIn" style="margin-left: 60px; color : #ffc300 ;" >Login Here</button>
             </div>
         </div>
     </div>

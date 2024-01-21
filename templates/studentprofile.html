@@ -1,0 +1,43 @@
+<html>
+<head>
+<link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+<img src="../static/images/logo.png" width="25%" height="15%" alt="logo" >
+<div class="container" id="container">
+	<div class="form-container sign-up-container">
+		<form action="/studentprofile" method="POST">
+            {{form.hidden_tag() }}
+			<h1>Student Profile</h1><br>
+			<!-- <input type="text" placeholder="Username" />
+			<input type="text" placeholder="First Name" />
+			<input type="text" placeholder="Last Name" />
+			<input type="text" placeholder="Department" />
+			<input type="tel" placeholder="Phone number" /> -->
+
+            {{ form.username }}
+            {{ form.first_name }}
+            {{ form.last_name }}
+            {{ form.department }}
+            {{ form.phone_number }}
+			<br>
+			<button type="submit">Save</button>
+		</form>
+	</div>
+	<div class="overlay-container">
+		<div class="overlay">
+			<div class="overlay-panel overlay-right">
+				<img src="https://bootdey.com/img/Content/avatar/avatar1.png" width="40%" height="35%" style = "border:5px solid #000000" >
+					<br>
+                                        <b>UPLOAD NEW PHOTO</b>
+                                        <p><input type="file" style = " background-color :#ffc300" ></p>
+					<button class="ghost" id="signIn">RESET </button><br>
+<span style="font-size: 8px;">Allowed JPG, GIF or PNG.Max size of 800K </span>
+                                    
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+

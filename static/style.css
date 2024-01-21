@@ -1,4 +1,6 @@
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 body {
 	background-image: url("../static/images/bg5.jpg");
 	display: flex;
@@ -247,3 +249,54 @@ footer a {
     color: #3c97bf;
     text-decoration: none;
 }
+
+
+/* input[type=radio]{
+	display:none;
+
+} */
+
+/* label[for="student"]{
+	position: relative;
+	font-family:'Poppins',sans-serif;
+	font-size:12px;
+	border: 2px solid #01cc65;
+	border-radius: 10px;
+	padding: 5px 25px;
+	/* display:flex; */
+	/* align-items:center;
+	cursor:pointer;
+} */
+
+/* label[for="teacher"]{
+	position: relative;
+	font-family:'Poppins',sans-serif;
+	font-size:12px;
+	border: 2px solid #01cc65;
+	border-radius: 10px;
+	padding: 5px 25px;
+	/* display:flex; */
+	/* align-items:center;
+	cursor:pointer; 
+} */
+
+/* label:before{
+	position: absolute;
+	content: "";
+	height: 30px;
+	width: 30px;
+	border: 3px solid #01cc65;
+	border-radius:50%;
+	margin-right: 20px;
+} */
+
+/* input[type="radio"]:checked + label {
+	background-color:#397039;
+	color: white;
+}
+
+input[type="radio"]:checked + label:before {
+	height:16px;
+	width:16px;
+	border: 10px solid white;
+} */
