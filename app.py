@@ -210,7 +210,7 @@ def register():
     form = RegistrationForm()
     
     if form.validate_on_submit():
-        selected_user = request.form['users']
+        selected_user = request.form.get('users')
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         
         print(f"---{selected_user}-------")
