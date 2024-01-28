@@ -6,7 +6,7 @@
 <img src="../static/images/logo.png" width="25%" height="15%" alt="logo" >
 <div class="container" id="container">
 	<div class="form-container sign-up-container">
-		<form action="/studentprofile" method="POST" autocomplete=off>
+		<form action="{{url_for('student_profile',login_uuid=login_uuid)}}" method="POST" autocomplete=off>
             {{form.hidden_tag() }}
 			<h1>Student Profile</h1><br>
 

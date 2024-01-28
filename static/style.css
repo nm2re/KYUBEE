@@ -284,3 +284,25 @@ input[type="file"] {
 }
 
 
+.flash-messages {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.flash-message {
+	margin-bottom: 10px;
+	padding: 10px;
+	border: 1px solid;
+	border-radius: 5px;
+}
+
+.success {
+	border-color: #4CAF50; /* Green border for success messages */
+	background-color: #E7FEE7; /* Light green background for success messages */
+}
+
+.error {
+	border-color: #D32F2F; /* Red border for error messages */
+	background-color: #FEE7E7; /* Light red background for error messages */
+}

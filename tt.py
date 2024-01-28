@@ -68,7 +68,7 @@
 
 
 # class teachers(db.Model, UserMixin):
-#     TEACHER_ID = db.Column(db.Integer, primary_key=True)
+#     TEACHER_ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
 #     TEACHER_EMAIL = db.Column(db.String(80), nullable=False)
 #     FIRST_NAME = db.Column(db.String(80))
 #     LAST_NAME = db.Column(db.String(80))

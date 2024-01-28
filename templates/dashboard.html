@@ -60,9 +60,22 @@
     </nav>
 
 </header>
+<div class="alert">
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+    <!-- <div class="alert"> -->
+    {{ message }}
+    <!-- </div> -->
+{% endfor %}
+{% endif %}
+{% endwith %}
+</div>
 <main class="h-[60vh] w-full bg-blue-50">
+
     <div class="flex flex-col justify-start items-center pt-40 gap-5">
-        <h1 class="text-6xl font-black">Lorem ipsum dolor sit amet.</h1>
+
+        <h1 class="text-6xl font-black">Welcome to Kyubee</h1>
         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro et velit ratione voluptates, aliquid eius explicabo nihil, est accusamus magni libero ex, at vitae. Accusantium.</p>
     </div>
 
