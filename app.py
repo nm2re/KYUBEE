@@ -2,7 +2,7 @@ import uuid
 from flask_bcrypt import Bcrypt
 from flask import Flask, redirect, url_for, request,flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask import render_template
 import validators
 from wtforms import IntegerField, RadioField, ValidationError
@@ -25,7 +25,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
+login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(id):
@@ -241,8 +241,20 @@ def dashboard(user_type, user_id):
     else:
         flash('User not found', 'error')
 
-    return render_template('dashboard.html', user_type=user_type, user_id=user_id)
+    return render_template('dashboard.html',user_type=user_type, user_id=user_id,logged_user=logged_user)
 
+
+@app.route('/account/<string:user_type>/<string:user_id>', methods=['GET', 'POST'])
+@login_required
+def account(user_type, user_id):
+    form = ProfileForm()
+    if user_type == 'Student':
+        logged_user = student_login.query.get(user_id)
+    elif user_type == 'Teacher':
+        logged_user = teacher_login.query.get(user_id)
+        
+        current_user.EMAIL = form.email.data #Allow email to be changed from the Account page
+    return render_template('account.html',user_type=user_type, user_id=user_id)
 
 @app.route('/studentprofile/<login_uuid>', methods=['GET', 'POST'])
 def student_profile(login_uuid):
