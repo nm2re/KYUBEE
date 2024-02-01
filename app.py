@@ -1,6 +1,7 @@
+import os
 import uuid
 from flask_bcrypt import Bcrypt
-from flask import Flask, redirect, url_for, request, flash
+from flask import Flask, redirect, url_for, request, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask import render_template
@@ -14,9 +15,11 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length
 from flask_migrate import Migrate
 
 app = Flask(__name__)
+
 # -----------------------CONFIG--------------------------
 app.config['SECRET_KEY'] = 'e728db02b86faeb0c569febd00886d06'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+
 # -----------------------INSTANCES-----------------------
 
 db = SQLAlchemy(app)
@@ -60,9 +63,10 @@ class teacher_login(db.Model, UserMixin):
     def get_id(self):
         return str(self.ID)
 
+
 class students(db.Model, UserMixin):
     STUDENT_ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
-    STUDENT_EMAIL = db.Column(db.String(80), nullable=False,unique=True)
+    STUDENT_EMAIL = db.Column(db.String(80), nullable=False, unique=True)
     FIRST_NAME = db.Column(db.String(80))
     LAST_NAME = db.Column(db.String(80))
     DEPARTMENT_ID = db.Column(db.String(36), db.ForeignKey('department.DEPARTMENT_ID'))
@@ -73,7 +77,7 @@ class students(db.Model, UserMixin):
 
 class teachers(db.Model, UserMixin):
     TEACHER_ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
-    TEACHER_EMAIL = db.Column(db.String(80), nullable=False,unique=True)
+    TEACHER_EMAIL = db.Column(db.String(80), nullable=False, unique=True)
     FIRST_NAME = db.Column(db.String(80))
     LAST_NAME = db.Column(db.String(80))
     DEPARTMENT_ID = db.Column(db.String(36), db.ForeignKey('department.DEPARTMENT_ID'))
@@ -206,7 +210,7 @@ def student_dashboard():
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
         flash('User not found', 'error')
-    return render_template('dashboard.html', current_user=current_user)
+    return render_template('studentdashboard.html', current_user=current_user)
 
 
 @app.route('/teacherdashboard', methods=['GET', 'POST'])
@@ -227,7 +231,7 @@ def teacher_dashboard():
     return render_template('teacherdashboard.html', current_user=current_user)
 
 
-@app.route('/studentaccount', methods=['GET', 'POST'])
+@app.route('/student-profile-page', methods=['GET', 'POST'])
 @login_required
 def student_account():
     form = ProfileForm()
@@ -248,7 +252,7 @@ def student_account():
     print(request.form)
     if new_email or new_first_name or new_last_name or new_phone_number:
         check_email = db.session.query(students).filter_by(
-            STUDENT_EMAIL=new_email).first()  #if there exists an email similar to new email
+            STUDENT_EMAIL=new_email).first()  # if there exists an email similar to new email
         print(check_email)
         if new_email != current_user.EMAIL and check_email is None:
             if validators.email(new_email):
@@ -260,11 +264,11 @@ def student_account():
 
         db.session.commit()
         return redirect(url_for('student_account'))
-    return render_template('account.html', firstName=firstName, lastName=lastName, Department=Department,
+    return render_template('studentprofilepage.html', firstName=firstName, lastName=lastName, Department=Department,
                            phoneNumber=phoneNumber)
 
 
-@app.route('/teacheraccount', methods=['GET', 'POST'])
+@app.route('/teacher-profile-page', methods=['GET', 'POST'])
 @login_required
 def teacher_account():
     form = ProfileForm()
@@ -295,7 +299,7 @@ def teacher_account():
 
         db.session.commit()
         return redirect(url_for('teacher_account'))
-    return render_template('teacheraccount.html', firstName=firstName, lastName=lastName, Department=Department,
+    return render_template('teacherprofilepage.html', firstName=firstName, lastName=lastName, Department=Department,
                            phoneNumber=phoneNumber)
 
 
@@ -305,15 +309,15 @@ def profile_picture():
     try:
         return open(f'/profile_pictures/{current_user.ID}', "r").read()
     except:
-        return redirect('/static/man-user-circle-icon.png')
+        return redirect('/static/images/man-user-circle-icon.png')
 
 
-@app.route('/studentprofile/<login_uuid>', methods=['GET', 'POST'])
+@app.route('/student-register/<login_uuid>', methods=['GET', 'POST'])
 def student_profile(login_uuid):
     form = ProfileForm()
 
     if form.validate_on_submit():
-        dep = db.session.query(department).filter_by(DEPARTMENT_NAME=form.department.data).first()
+        dep = db.session.query(department).filter_by(DEPARTMENT_NAME=request.form.get('department')).first()
         db.session.query(students).filter_by(STUDENT_ID=login_uuid).update(
             {"FIRST_NAME": form.first_name.data, "LAST_NAME": form.last_name.data,
              "DEPARTMENT_ID": dep.DEPARTMENT_ID, "PHONE_NUMBER": form.phone_number.data})
@@ -321,12 +325,11 @@ def student_profile(login_uuid):
         db.session.commit()
         return redirect(url_for('login'))
     else:
-        print('hello')
         print(form.errors)
-    return render_template('studentprofile.html', form=form, login_uuid=login_uuid)
+    return render_template('studentregister.html', form=form, login_uuid=login_uuid)
 
 
-@app.route('/teacherprofile/<login_uuid>', methods=['GET', 'POST'])
+@app.route('/teacher-register/<login_uuid>', methods=['GET', 'POST'])
 def teacher_profile(login_uuid):
     form = ProfileForm()
 
@@ -341,8 +344,7 @@ def teacher_profile(login_uuid):
     else:
         print('hello')
         print(form.errors)
-    return render_template('teacherprofile.html', form=form, login_uuid=login_uuid)
-
+    return render_template('teacherregister.html', form=form, login_uuid=login_uuid)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -407,13 +409,39 @@ def register():
         else:
             print(form.errors)
 
-    return render_template('register.html', form=form)
+    return render_template('registration.html', form=form)
 
 
-# @app.route('')
-# def pdf_embed():
-#
-#
+# Display pdfs
+@app.route('/pdf')
+def pdf_view():
+    pdf_path = "/static/pdfs/BCA332.pdf"
+    return redirect(pdf_path)
+
+
+# Storing pdfs
+@app.route('/pdfupload', methods=['GET', 'POST'])
+def pdf_upload():
+    if current_user.type == 0:
+        student_storage = 'zfile_processing/pdf_storing'
+        pdf_file = request.files['file_input']
+        if pdf_file and pdf_file.filename.endswith('.pdf'):
+            pdf_file.filename = str(uuid.uuid4()) + ".pdf"
+            student_pdf_file = pdf_file.filename
+            pdf_path = os.path.join(student_storage, student_pdf_file)
+            pdf_file.save(pdf_path)
+
+        return redirect(url_for('pdf_view'))
+
+    elif current_user.type == 1:
+        teacher_pdf_file = request.files['file_input']
+        if teacher_pdf_file and teacher_pdf_file.filename.endswith('.pdf'):
+            teacher_pdf_file.filename = str(uuid.uuid4()) + ".pdf"
+            pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], teacher_pdf_file.filename)
+            teacher_pdf_file.save(pdf_path)
+
+        return redirect(url_for('teacher_dashboard'))
+
 
 # main
 if __name__ == '__main__':
