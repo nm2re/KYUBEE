@@ -22,7 +22,7 @@
                     <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
                 </a> -->
 
-            <a href="{{url_for('student_dashboard',user_id=user_id,user_type=user_type)}}" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <a href="{{url_for('teacher_dashboard')}}" class="flex items-center space-x-3 rtl:space-x-reverse">
                 <img src="../../static/images/logo3.png" class="h-16 flex-shrink-0" alt="Kyubee Logo" />
                 <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
             </a>
@@ -40,7 +40,7 @@
                 <ul
                         class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                     <li>
-                        <a href="{{url_for('student_dashboard')}}"
+                        <a href="{{url_for('teacher_dashboard',user_id=user_id,user_type=user_type)}}"
                            class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
                            aria-current="page">Home</a>
                     </li>
@@ -75,7 +75,7 @@
                         class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                     Profile Page
                 </h1>
-                <form class="space-y-4 md:space-y-6" action="{{ url_for('student_account') }}" method="POST">
+                <form class="space-y-4 md:space-y-6" action="{{ url_for('teacher_account') }}" method="POST">
 
 {#                        <img src="{{ url_for('profile_picture',user_id=user_id) }}"#}
 {#                             class="object-scale-down h-48 w-96 ...">#}
