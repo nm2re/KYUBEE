@@ -140,7 +140,7 @@
 
             <label class="block mb-2 text-md font-medium text-gray-900" for="file_input">Upload file</label>
             <div class="flex justify-between">
-                <input type="file" name="file_input"
+                <input type="file" name="file_input" onChange="preview(this)"
                        class="block w-128 text-md text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50"
                        aria-describedby="file_input_help" id="file_input">
                 <button type="submit"
@@ -148,8 +148,29 @@
             </div>
             <p class="mt-1 text-md text-gray-500" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
 
-            <iframe src="{{ url_for('pdf_view') }}" width="800" height="900"></iframe>
+            <div id="preview-pdf">
+<!--            <iframe src="{{ url_for('pdf_view') }}" width="800" height="900"></iframe>-->
+            <iframe src=""></iframe>
+            </div>
 
+            <script>
+
+                function preview(input) {
+                var preview_object = document.getElementById('preview-pdf');
+                preview_object.innerHTML = "";
+
+                var file = input.files[0];
+                 console.log((window.URL ? URL : webkitURL).createObjectURL(file));
+                var iframe = document.createElement('iframe');
+                iframe.src = (window.URL ? URL : webkitURL).createObjectURL(file);
+                iframe.style.height = '900px';
+                iframe.style.width = '800px';
+                preview_object.appendChild(iframe);
+
+
+
+                }
+            </script>
 
             <h1 class="text-center text-3xl font-black">OR</h1>
             <div id="questions-input-div">
