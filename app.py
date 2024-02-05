@@ -48,7 +48,7 @@ def load_user(id):
 # -----------------------DATABASE-----------------------
 class student_login(db.Model, UserMixin):
     ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
-    EMAIL = db.Column(db.String(80), nullable=False)
+    EMAIL = db.Column(db.String(80), nullable=False,unique=True)
     PASSWORD = db.Column(db.String(90), nullable=False)
 
     def get_id(self):
@@ -57,7 +57,7 @@ class student_login(db.Model, UserMixin):
 
 class teacher_login(db.Model, UserMixin):
     ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
-    EMAIL = db.Column(db.String(80), nullable=False)
+    EMAIL = db.Column(db.String(80), nullable=False,unique=True)
     PASSWORD = db.Column(db.String(90), nullable=False)
 
     def get_id(self):
@@ -225,7 +225,7 @@ def teacher_dashboard():
     print(current_user.type)
 
     if current_user:
-        flash(f"Current User Logged In: {current_user.EMAIL}", 'error')
+        flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
         flash('User not found', 'error')
     return render_template('teacherdashboard.html', current_user=current_user)
@@ -260,7 +260,9 @@ def student_account():
                 db.session.query(students).filter_by(STUDENT_ID=current_user.ID).update({"STUDENT_EMAIL": new_email})
         db.session.query(students).filter_by(STUDENT_ID=current_user.ID).update({"FIRST_NAME": new_first_name})
         db.session.query(students).filter_by(STUDENT_ID=current_user.ID).update({"LAST_NAME": new_last_name})
-        db.session.query(students).filter_by(STUDENT_ID=current_user.ID).update({"PHONE_NUMBER": new_phone_number})
+
+        if len(new_phone_number) == 10:
+            db.session.query(students).filter_by(STUDENT_ID=current_user.ID).update({"PHONE_NUMBER": new_phone_number})
 
         db.session.commit()
         return redirect(url_for('student_account'))
@@ -295,7 +297,8 @@ def teacher_account():
                 db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"TEACHER_EMAIL": new_email})
         db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"FIRST_NAME": new_first_name})
         db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"LAST_NAME": new_last_name})
-        db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"PHONE_NUMBER": new_phone_number})
+        if len(new_phone_number) == 10:
+            db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"PHONE_NUMBER": new_phone_number})
 
         db.session.commit()
         return redirect(url_for('teacher_account'))
@@ -422,7 +425,7 @@ def pdf_view():
 # Storing pdfs
 @app.route('/pdfupload', methods=['GET', 'POST'])
 def pdf_upload():
-    if current_user.type == 0:
+    if current_user.type == 0:  # Student
         student_storage = 'zfile_processing/pdf_storing'
         pdf_file = request.files['file_input']
         if pdf_file and pdf_file.filename.endswith('.pdf'):
@@ -433,12 +436,14 @@ def pdf_upload():
 
         return redirect(url_for('pdf_view'))
 
-    elif current_user.type == 1:
-        teacher_pdf_file = request.files['file_input']
-        if teacher_pdf_file and teacher_pdf_file.filename.endswith('.pdf'):
-            teacher_pdf_file.filename = str(uuid.uuid4()) + ".pdf"
-            pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], teacher_pdf_file.filename)
-            teacher_pdf_file.save(pdf_path)
+    elif current_user.type == 1:  # Teacher
+        teacher_storage = 'zfile_processing/teacher_pdf_storing'
+        pdf_file = request.files['file_input']
+        if pdf_file and pdf_file.filename.endswith('.pdf'):
+            pdf_file.filename = str(uuid.uuid4()) + ".pdf"
+            teacher_pdf_file = pdf_file.filename
+            pdf_path = os.path.join(teacher_storage, teacher_pdf_file)
+            pdf_file.save(pdf_path)
 
         return redirect(url_for('teacher_dashboard'))
 
