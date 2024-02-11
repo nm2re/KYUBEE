@@ -1,0 +1,61 @@
+/* file: static/css/styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    padding: 20px;
+}
+
+
+.pdf-container {
+    display: flex;
+    overflow-x: auto;
+    padding: 20px;
+    white-space: nowrap;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pdf-item {
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    width: 200px;
+    /*margin: 10px;*/
+}
+
+
+.pdf-thumbnail {
+    position: relative; /* Set the container to relative positioning */
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%; /* Maintain a square aspect ratio (adjust as needed) */
+}
+
+.pdf-thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pdf-title {
+    margin-top: 10px;
+    font-size: 16px;
+    word-wrap: break-word;
+    max-width: 180px; /* Adjust the max-width as needed */
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

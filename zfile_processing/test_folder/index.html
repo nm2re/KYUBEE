@@ -1,0 +1,25 @@
+<!-- file: templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Catalog</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<h1>PDF Catalog</h1>
+<div class="pdf-container">
+    {% for pdf in pdfs %}
+    <div class="pdf-item">
+        <a href="{{ url_for('static', filename='pdfs/' + pdf) }}" target="_blank">
+            <div class="pdf-thumbnail">
+                <img src="{{ url_for('previews', filename=pdf + '.png') }}" alt="PDF Thumbnail">
+            </div>
+            <div class="pdf-title">{{ pdf }}</div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>
