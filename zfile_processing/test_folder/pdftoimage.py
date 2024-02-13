@@ -4,7 +4,7 @@ import os
 
 
 # Replace 'your_pdf.pdf' with the path to your PDF file
-pdf_path = '../../static/pdfs/BCA332.pdf'
+pdf_path = '../../../test_flask/static/pdfs/BCA332.pdf'
 
 # Specify the output folder path
 output_folder = 'output_images_folder'

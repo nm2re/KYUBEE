@@ -1,11 +1,14 @@
 import os
 import uuid
+from fileinput import filename
+
 from flask_bcrypt import Bcrypt
-from flask import Flask, redirect, url_for, request, flash, Response
+from flask import Flask, redirect, url_for, request, flash, Response, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask import render_template
 import validators
+from pdf2image import convert_from_path
 from sqlalchemy.orm import relationship
 from wtforms import IntegerField, RadioField, ValidationError
 from flask_wtf import FlaskForm
@@ -48,20 +51,24 @@ def load_user(id):
 # -----------------------DATABASE-----------------------
 class student_login(db.Model, UserMixin):
     ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
-    EMAIL = db.Column(db.String(80), nullable=False,unique=True)
+    EMAIL = db.Column(db.String(80), nullable=False, unique=True)
     PASSWORD = db.Column(db.String(90), nullable=False)
 
     def get_id(self):
         return str(self.ID)  # Since ID field name is not id
 
+    # student_rel = relationship('students', backref='student_login')
+
 
 class teacher_login(db.Model, UserMixin):
     ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
-    EMAIL = db.Column(db.String(80), nullable=False,unique=True)
+    EMAIL = db.Column(db.String(80), nullable=False, unique=True)
     PASSWORD = db.Column(db.String(90), nullable=False)
 
     def get_id(self):
         return str(self.ID)
+
+    # teacher_rel = relationship('teachers', backref='teacher_login')
 
 
 class students(db.Model, UserMixin):
@@ -210,7 +217,7 @@ def student_dashboard():
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
         flash('User not found', 'error')
-    return render_template('studentdashboard.html', current_user=current_user)
+    return render_template('student/studentdashboard.html', current_user=current_user)
 
 
 @app.route('/teacherdashboard', methods=['GET', 'POST'])
@@ -228,7 +235,7 @@ def teacher_dashboard():
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
         flash('User not found', 'error')
-    return render_template('teacherdashboard.html', current_user=current_user)
+    return render_template('teacher/teacherdashboard.html', current_user=current_user)
 
 
 @app.route('/student-profile-page', methods=['GET', 'POST'])
@@ -266,7 +273,8 @@ def student_account():
 
         db.session.commit()
         return redirect(url_for('student_account'))
-    return render_template('studentprofilepage.html', firstName=firstName, lastName=lastName, Department=Department,
+    return render_template('student/studentprofilepage.html', firstName=firstName, lastName=lastName,
+                           Department=Department,
                            phoneNumber=phoneNumber)
 
 
@@ -302,7 +310,8 @@ def teacher_account():
 
         db.session.commit()
         return redirect(url_for('teacher_account'))
-    return render_template('teacherprofilepage.html', firstName=firstName, lastName=lastName, Department=Department,
+    return render_template('teacher/teacherprofilepage.html', firstName=firstName, lastName=lastName,
+                           Department=Department,
                            phoneNumber=phoneNumber)
 
 
@@ -329,7 +338,7 @@ def student_profile(login_uuid):
         return redirect(url_for('login'))
     else:
         print(form.errors)
-    return render_template('studentregister.html', form=form, login_uuid=login_uuid)
+    return render_template('login_register/studentregister.html', form=form, login_uuid=login_uuid)
 
 
 @app.route('/teacher-register/<login_uuid>', methods=['GET', 'POST'])
@@ -347,7 +356,7 @@ def teacher_profile(login_uuid):
     else:
         print('hello')
         print(form.errors)
-    return render_template('teacherregister.html', form=form, login_uuid=login_uuid)
+    return render_template('login_register/teacherregister.html', form=form, login_uuid=login_uuid)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -369,7 +378,7 @@ def login():
                 return redirect(url_for('teacher_dashboard'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'error')
-    return render_template('login.html', form=form)
+    return render_template('login_register/login.html', form=form)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -412,14 +421,14 @@ def register():
         else:
             print(form.errors)
 
-    return render_template('registration.html', form=form)
+    return render_template('login_register/registration.html', form=form)
 
 
 # Display pdfs
-@app.route('/pdf')
-def pdf_view():
-    pdf_path = "/static/pdfs/BCA332.pdf"
-    return redirect(pdf_path)
+# @app.route('/pdf')
+# def pdf_view():
+#     pdf_path = "/static/pdfs/BCA332.pdf"
+#     return redirect(pdf_path)
 
 
 # Storing pdfs
@@ -434,7 +443,7 @@ def pdf_upload():
             pdf_path = os.path.join(student_storage, student_pdf_file)
             pdf_file.save(pdf_path)
 
-        return redirect(url_for('pdf_view'))
+        return redirect(url_for('student_dashboard'))
 
     elif current_user.type == 1:  # Teacher
         teacher_storage = 'zfile_processing/teacher_pdf_storing'
@@ -446,6 +455,55 @@ def pdf_upload():
             pdf_file.save(pdf_path)
 
         return redirect(url_for('teacher_dashboard'))
+
+
+'''
+    - Make new page for questions upload (Teachers)
+    - 3 containers --> pdf, textbox, each div for questions with tags
+    - 
+
+'''
+
+
+@app.route('/generatepaper', methods=['GET', 'POST'])
+def generate_paper():
+    return render_template('teacher/generatepaper.html')
+
+
+@app.route('/uploadpaper', methods=['GET', 'POST'])
+def upload_paper():
+    return render_template('teacher/teacheruploadsection.html')
+
+
+# teachers upload
+
+@app.route('/teacher-upload', methods=['GET', 'POST'])
+@login_required
+def notes_upload():
+    return render_template('teacher/generatepaper.html')
+
+
+# students
+@app.route('/notes', methods=['GET', 'POST'])
+@login_required
+def notes_display():
+    pdfs = os.listdir('static/pdfs')
+    previews_folder = 'static/previews'
+    if not os.path.exists(previews_folder):
+        os.makedirs(previews_folder)
+
+    for pdf in pdfs:
+        preview_path = os.path.join(previews_folder, pdf + '.png')
+        if not os.path.exists(preview_path):
+            images = convert_from_path(os.path.join('static/pdfs', pdf), size=(200, 282), single_file=True)
+            images[0].save(preview_path, 'PNG')
+
+    return render_template('pdf.html', pdfs=pdfs)
+
+
+@app.route('/zfile_processing/<path:fileName>')
+def previews(fileName):
+    return send_from_directory('static/previews', fileName)
 
 
 # main
