@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Teacher Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="./main.css">
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-cover bg-center bg-no-repeat" style="background-image: url('../../static/images/pexels-jakub-novacek-924824.jpg');">
+
+<header>
+    <nav class="bg-black border-gray-200 dark:bg-gray-900">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <!-- <a href="" class="flex items-center space-x-3 rtl:space-x-reverse ">
+                <img src="../../static/images/logo3.png" class="h-24" alt="Kyubee Logo" />
+                <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
+            </a> -->
+
+            <a href="" class="flex">
+                <img src="../../static/images/logo3.png" class="h-14 flex-shrink-0 ml-auto" alt="Kyubee Logo" />
+                <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
+            </a>
+            <button data-collapse-toggle="navbar-default" type="button"
+                    class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                    aria-controls="navbar-default" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 17 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M1 1h15M1 7h15M1 13h15" />
+                </svg>
+            </button>
+            <div class="hidden w-full md:block md:w-auto mt-3" id="navbar-default">
+                <ul
+                        class="font-medium flex flex-col p-4 md:p-0 mt-3 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                    <li>
+                        <a href="{{url_for('teacher_dashboard') }}"
+                           class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
+                           aria-current="page">Home</a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url_for('generate_paper') }}"
+                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Generate Paper</a>
+                    </li>
+
+                    <li>
+                        <a href="{{ url_for('upload_paper') }}"
+                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Upload Papers</a>
+                    </li>
+
+                    <li>
+                        <a href="{{url_for('teacher_account')}}"
+                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Account</a>
+                    </li>
+
+                    <li>
+                        <img id="avatarButton" type="button" data-dropdown-toggle="userDropdown"
+                             data-dropdown-placement="bottom-start" class="w-9 h-9 rounded-full cursor-pointer"
+                             src="{{ url_for('profile_picture') }}" alt="User dropdown">
+                        <div id="userDropdown"
+                             class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+                            <div class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                <div>{{ current_user.EMAIL }}</div>
+                            </div>
+                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                                aria-labelledby="avatarButton">
+                                <li>
+                                    <a href="#"
+                                       class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                       class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                       class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</a>
+                                </li>
+                            </ul>
+                            <div class="py-1">
+                                <a href="{{url_for('logout')}}"
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign
+                                    out</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="alert bg-opacity-50">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if 'Current User Logged In' in message %}
+    <div class="alert text-white">
+        {{ message }}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+
+<main class="h-[100vh] w-full bg-cover bg-center bg-no-repeat" >
+    <div class="flex flex-col justify-start items-center pt-40 gap-5">
+        <h1 class="text-7xl font-medium text-white mt-36">WELCOME TO KYUBEE {{current_user.}}</h1>
+    </div>
+
+
+    <form>
+        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+        <div class="relative max-w-4xl mx-auto mt-16"> <!-- Set max width and center the container -->
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"> <!-- Adjusted position of the search icon -->
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+
+            <input type="search" id="default-search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Question Papers, Notes..." required>
+            <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+        </div>
+    </form>
+</main>
+
+<!--<section class="w-2/3 mx-auto py-20">-->
+<!--    <h1 class="flex justify-center font-white text-4xl text-white">UPLOAD SECTION</h1>-->
+<!--    <div class="flex justify-center">-->
+<!--        <form action="{{ url_for('pdf_upload') }}" class="my-20" enctype="multipart/form-data" method="post">-->
+
+<!--            <label class="block mb-2 text-md font-medium text-white" for="file_input">Upload file</label>-->
+<!--            <div class="flex justify-between">-->
+<!--                <input type="file" name="file_input" onChange="preview(this)"-->
+<!--                       class="block w-128 text-md text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50"-->
+<!--                       aria-describedby="file_input_help" id="file_input">-->
+<!--                <button type="submit"-->
+<!--                        class="px-5 py-1 rounded bg-yellow-500 text-black text-sm">Select PDF File</button>-->
+<!--            </div>-->
+<!--            <p class="mt-1 text-md text-gray-500" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>-->
+
+<!--            <div class="flex" id="preview-pdf">-->
+<!--                <iframe src=""></iframe>-->
+<!--            </div>-->
+
+<!--            <script>-->
+
+<!--                function preview(input) {-->
+<!--                var preview_object = document.getElementById('preview-pdf');-->
+<!--                preview_object.innerHTML = "";-->
+
+<!--                var file = input.files[0];-->
+<!--                 console.log((window.URL ? URL : webkitURL).createObjectURL(file));-->
+<!--                var iframe = document.createElement('iframe');-->
+<!--                iframe.src = (window.URL ? URL : webkitURL).createObjectURL(file);-->
+<!--                iframe.style.height = '900px';-->
+<!--                iframe.style.width = '800px';-->
+<!--                preview_object.appendChild(iframe);-->
+<!--                }-->
+<!--            </script>-->
+
+<!--            &lt;!&ndash;            <h1 class="text-center text-3xl font-black">OR</h1>&ndash;&gt;-->
+<!--            &lt;!&ndash;            <div id="questions-input-div">&ndash;&gt;-->
+<!--            &lt;!&ndash;                <div class="mb-6">&ndash;&gt;-->
+<!--            &lt;!&ndash;                    <label for="default-input" class="block mb-2 text-sm font-medium text-gray-900">Enter your&ndash;&gt;-->
+<!--            &lt;!&ndash;                        question here</label>&ndash;&gt;-->
+<!--            &lt;!&ndash;                    <input name="question" type="text" id="default-input" autocomplete="off"&ndash;&gt;-->
+<!--            &lt;!&ndash;                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">&ndash;&gt;-->
+<!--            &lt;!&ndash;                </div>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </div>&ndash;&gt;-->
+
+<!--            &lt;!&ndash;            <div class="flex justify-between">&ndash;&gt;-->
+<!--            &lt;!&ndash;                <button type="button" id="questionBtn"&ndash;&gt;-->
+<!--            &lt;!&ndash;                        class="px-2 py-1 rounded bg-orange-500 text-white text-sm">Add Question</button>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <button type="Submit" id="questionBtn"&ndash;&gt;-->
+<!--            &lt;!&ndash;                        class="px-2 py-1 rounded bg-green-500 text-white text-sm">Submit</button>&ndash;&gt;-->
+<!--            &lt;!&ndash;            </div>&ndash;&gt;-->
+<!--        </form>-->
+<!--    </div>-->
+
+<!--    <div class="flex justify-center">-->
+<!--        <button type="submit" class="px-8 py-2 rounded bg-yellow-500 text-black text-lg">-->
+<!--            Convert PDF-->
+<!--        </button>-->
+<!--    </div>-->
+
+<!--</section>-->
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+</body>
