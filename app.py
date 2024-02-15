@@ -1,7 +1,9 @@
 import os
 import uuid
 from fileinput import filename
-
+import fitz
+import PyPDF2
+import docx
 from flask_bcrypt import Bcrypt
 from flask import Flask, redirect, url_for, request, flash, Response, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
@@ -34,18 +36,41 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
+# @login_manager.user_loader
+# def load_user(id):
+#     student_user = student_login.query.get(id)
+#     teacher_user = teacher_login.query.get(id)
+#     if student_user:
+#         student_user.type = 0
+#         student_user.name = db.session.query(students).filter_by(STUDENT_ID=id).get(FIRST_NAME) + db.session.query(students).filter_by(STUDENT_ID=id).get(LAST_NAME)
+#         return student_user
+#     elif teacher_user:
+#         teacher_user.type = 1
+#         teacher_user.name = db.session.query(teachers).filter_by(TEACHER_ID=id).get(FIRST_NAME) + db.session.query(students).filter_by(TEACHER_ID=id).get(LAST_NAME)
+#         return teacher_user
+#     else:
+#         None
+
+
 @login_manager.user_loader
 def load_user(id):
     student_user = student_login.query.get(id)
     teacher_user = teacher_login.query.get(id)
+
     if student_user:
         student_user.type = 0
+        student = db.session.query(students).filter_by(STUDENT_ID=id).first()
+        if student:
+            student_user.name = student.FIRST_NAME + " " + student.LAST_NAME
         return student_user
     elif teacher_user:
         teacher_user.type = 1
+        teacher = db.session.query(teachers).filter_by(TEACHER_ID=id).first()
+        if teacher:
+            teacher_user.name = teacher.FIRST_NAME + " " + teacher.LAST_NAME
         return teacher_user
     else:
-        None
+        return None
 
 
 # -----------------------DATABASE-----------------------
@@ -223,11 +248,6 @@ def student_dashboard():
 @app.route('/teacherdashboard', methods=['GET', 'POST'])
 @login_required
 def teacher_dashboard():
-    # if current_user.type == 0:
-    #     logged_user = student_login.query.get(user_id)
-    # elif current_user.type == 1:
-    #     logged_user = teacher_login.query.get(user_id)
-
     print(current_user.EMAIL)
     print(current_user.type)
 
@@ -504,6 +524,49 @@ def notes_display():
 @app.route('/zfile_processing/<path:fileName>')
 def previews(fileName):
     return send_from_directory('static/previews', fileName)
+
+
+# ---------------------------------------File Uploading--------------------------------
+
+def read_docx(file):
+    doc = docx.Document(file)
+    text = ''
+    for paragraph in doc.paragraphs:
+        text += paragraph.text + '\n'
+    return text
+
+
+def read_pdf(file):
+    pdf_document = PyPDF2.PdfReader(file)
+    text = ''
+    print(f'{pdf_document}--Pdf document')
+    for page_num in range(len(pdf_document.pages)):
+        page = pdf_document.pages[page_num]
+        print(f"{page}--Page")
+        text += page.extract_text()
+    print(f'{text}--Text')
+    file.close()
+    return text
+
+
+@app.route('/qp', methods=['GET', 'POST'])
+def index():
+    questions = []
+    extracted_text = ''
+    if 'file' in request.files:
+        file1 = request.files['file']
+        if file1.filename.endswith('.docx'):
+            extracted_text = read_docx(file1)
+        elif file1.filename.endswith('.pdf'):
+            extracted_text = read_pdf(file1)
+
+    if 'inputBox' in request.form:
+        if request.method == 'POST':
+            input_text = request.form.get('inputBox')
+            questions = input_text.split('\n')
+
+    print(f'{extracted_text}--------------pdf------------')
+    return render_template('qptoquestions.html', questions=questions, extracted_text=extracted_text)
 
 
 # main
