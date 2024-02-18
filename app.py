@@ -566,7 +566,7 @@ def index():
             questions = input_text.split('\n')
 
     print(f'{extracted_text}--------------pdf------------')
-    return render_template('qptoquestions.html', questions=questions, extracted_text=extracted_text)
+    return render_template('questionpaperupload.html', questions=questions, extracted_text=extracted_text)
 
 
 # main
