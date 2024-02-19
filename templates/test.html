@@ -41,20 +41,20 @@
                            aria-current="page">Home</a>
                     </li>
                     <li>
-                        <a href="{{ url_for('generate_paper') }}"
-                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Generate
-                            Paper</a>
+                        <a href="{{ url_for('question_paper_upload') }}"
+                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Upload
+                            Papers</a>
                     </li>
 
                     <li>
-                        <a href="{{ url_for('upload_paper') }}"
+                        <a href="{{ url_for('upload_notes') }}"
                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Upload
                             Notes</a>
                     </li>
 
                     <li>
                         <a href="{{url_for('teacher_account')}}"
-                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Account</a>
+                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Profile</a>
                     </li>
 
                     <li>
@@ -97,15 +97,10 @@
 
     <div class="flex flex-col justify-start items-center pt-40 gap-20">
         <h1 class="text-7xl font-medium text-white mt-32">Upload Notes</h1>
-
-        <!--        <form>-->
         <button id="scrollButton"
                 class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl px-12 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
             Click Here
         </button>
-
-
-        <!--        </form>-->
     </div>
 
 </main>
@@ -124,68 +119,55 @@
                         class="px-5 py-1 rounded bg-yellow-500 text-black text-sm">Select PDF File</button>
             </div>
             <p class="mt-1 text-md text-gray-500" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
-
             <div class="flex" id="preview-pdf">
                 <iframe src=""></iframe>
             </div>
-
-            <script>
-
-                function preview(input) {
-                var preview_object = document.getElementById('preview-pdf');
-                preview_object.innerHTML = "";
-
-                var file = input.files[0];
-                 console.log((window.URL ? URL : webkitURL).createObjectURL(file));
-                var iframe = document.createElement('iframe');
-                iframe.src = (window.URL ? URL : webkitURL).createObjectURL(file);
-                iframe.style.height = '900px'   ;
-                iframe.style.width = '800px';
-                preview_object.appendChild(iframe);
-                }
-            </script>
-
-            <!--            <h1 class="text-center text-3xl font-black">OR</h1>-->
-            <!--            <div id="questions-input-div">-->
-            <!--                <div class="mb-6">-->
-            <!--                    <label for="default-input" class="block mb-2 text-sm font-medium text-gray-900">Enter your-->
-            <!--                        question here</label>-->
-            <!--                    <input name="question" type="text" id="default-input" autocomplete="off"-->
-            <!--                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">-->
-            <!--                </div>-->
-            <!--            </div>-->
-
-            <!--            <div class="flex justify-between">-->
-            <!--                <button type="button" id="questionBtn"-->
-            <!--                        class="px-2 py-1 rounded bg-orange-500 text-white text-sm">Add Question</button>-->
-            <!--                <button type="Submit" id="questionBtn"-->
-            <!--                        class="px-2 py-1 rounded bg-green-500 text-white text-sm">Submit</button>-->
-            <!--            </div>-->
         </form>
     </div>
-    <script>
-        document.getElementById('scrollButton').addEventListener('click', function() {
-          smoothScroll('#section2');
-        });
 
-        function smoothScroll(targetSelector) {
-          const targetElement = document.querySelector(targetSelector);
-
-          if (targetElement) {
-            window.scrollTo({
-              top: targetElement.offsetTop,
-              behavior: 'smooth'
-            });
-          }
-        }
-    </script>
     <div class="flex justify-center">
         <button type="submit" class="px-8 py-2 rounded bg-yellow-500 text-black text-lg">
             Convert PDF
         </button>
     </div>
-
 </section>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+<script>
+    document.getElementById('scrollButton').addEventListener('click', function() {
+      smoothScroll('#section2');
+    });
+
+    function smoothScroll(targetSelector) {
+        const targetElement = document.querySelector(targetSelector);
+        if (targetElement) {
+            window.scrollTo({
+            top: targetElement.offsetTop,
+            behavior: 'smooth'
+            });
+        }
+    }
+</script>
+<script>
+
+    function preview(input) {
+    var preview_object = document.getElementById('preview-pdf');
+    preview_object.innerHTML = "";
+
+    var file = input.files[0];
+     console.log((window.URL ? URL : webkitURL).createObjectURL(file));
+    var iframe = document.createElement('iframe');
+    iframe.src = (window.URL ? URL : webkitURL).createObjectURL(file);
+    iframe.style.height = '900px'   ;
+    iframe.style.width = '800px';
+    preview_object.appendChild(iframe);
+    }
+</script>
 </body>
 </html>
+
+<!--if (targetElement) {-->
+<!--window.scrollTo({-->
+<!--top: targetElement.offsetTop,-->
+<!--behavior: 'smooth'-->
+<!--});-->
+<!--}-->

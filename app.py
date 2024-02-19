@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime
 from fileinput import filename
 import fitz
 import PyPDF2
@@ -61,13 +62,21 @@ def load_user(id):
         student_user.type = 0
         student = db.session.query(students).filter_by(STUDENT_ID=id).first()
         if student:
-            student_user.name = student.FIRST_NAME + " " + student.LAST_NAME
+            student_user.first_name = student.FIRST_NAME
+            student_user.last_name = student.LAST_NAME
+            # teacher_user.name = teacher.FIRST_NAME + " " + teacher.LAST_NAME
+            student_user.department_id = student.DEPARTMENT_ID
+            student_user.phone_number = student.PHONE_NUMBER
         return student_user
     elif teacher_user:
         teacher_user.type = 1
         teacher = db.session.query(teachers).filter_by(TEACHER_ID=id).first()
         if teacher:
-            teacher_user.name = teacher.FIRST_NAME + " " + teacher.LAST_NAME
+            teacher_user.first_name = teacher.FIRST_NAME
+            teacher_user.last_name = teacher.LAST_NAME
+            # teacher_user.name = teacher.FIRST_NAME + " " + teacher.LAST_NAME
+            teacher_user.department_id = teacher.DEPARTMENT_ID
+            teacher_user.phone_number = teacher.PHONE_NUMBER
         return teacher_user
     else:
         return None
@@ -119,7 +128,7 @@ class teachers(db.Model, UserMixin):
 
 
 class question_papers(db.Model, UserMixin):
-    QP_ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
+    QP_ID = db.Column(db.String(36), primary_key=True, unique=True)
     TEACHER_ID = db.Column(db.String(36), db.ForeignKey('teachers.TEACHER_ID'))
     FILE_TYPE = db.Column(db.String(10), nullable=False)
     DATE_CREATED = db.Column(db.Date, nullable=False)
@@ -301,9 +310,9 @@ def student_account():
 @app.route('/teacher-profile-page', methods=['GET', 'POST'])
 @login_required
 def teacher_account():
-    form = ProfileForm()
+    # form = ProfileForm()
+    message = None
 
-    # first name of the student
     teacher = db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).first()
     firstName = teacher.FIRST_NAME
     lastName = teacher.LAST_NAME
@@ -314,22 +323,23 @@ def teacher_account():
     new_first_name = request.form.get('first_name')
     new_last_name = request.form.get('last_name')
     new_phone_number = request.form.get('phone_number')
-    print(new_first_name)
-    print(new_last_name)
-    print(request.form)
 
-    if new_email or new_first_name or new_last_name or new_phone_number:
-        if new_email != current_user.EMAIL:
-            if validators.email(new_email):
-                db.session.query(teacher_login).filter_by(ID=current_user.ID).update({"EMAIL": new_email})
-                db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"TEACHER_EMAIL": new_email})
-        db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"FIRST_NAME": new_first_name})
-        db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"LAST_NAME": new_last_name})
-        if len(new_phone_number) == 10:
-            db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"PHONE_NUMBER": new_phone_number})
-
-        db.session.commit()
-        return redirect(url_for('teacher_account'))
+    if request.method == 'POST':
+        if new_email or new_first_name or new_last_name or new_phone_number:
+            if new_email != current_user.EMAIL:
+                if validators.email(new_email):
+                    db.session.query(teacher_login).filter_by(ID=current_user.ID).update({"EMAIL": new_email})
+                    db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update(
+                        {"TEACHER_EMAIL": new_email})
+            db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"FIRST_NAME": new_first_name})
+            db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update({"LAST_NAME": new_last_name})
+            if len(new_phone_number) == 10:
+                db.session.query(teachers).filter_by(TEACHER_ID=current_user.ID).update(
+                    {"PHONE_NUMBER": new_phone_number})
+            message = "Profile Updated Successfully!"
+            flash(message, 'success')
+            db.session.commit()
+            return redirect(url_for('teacher_account'))
     return render_template('teacher/teacherprofilepage.html', firstName=firstName, lastName=lastName,
                            Department=Department,
                            phoneNumber=phoneNumber)
@@ -469,13 +479,19 @@ def pdf_upload():
         teacher_storage = 'zfile_processing/teacher_pdf_storing'
         pdf_file = request.files['file_input']
         if pdf_file and pdf_file.filename.endswith('.pdf'):
-            pdf_file.filename = str(uuid.uuid4()) + ".pdf"
+            pdf_uuid = str(uuid.uuid4())
+            pdf_name = request.form.get('pdf-name')
+            pdf_file.filename = pdf_uuid + ".pdf"
             teacher_pdf_file = pdf_file.filename
             pdf_path = os.path.join(teacher_storage, teacher_pdf_file)
             pdf_file.save(pdf_path)
-
-        return redirect(url_for('teacher_dashboard'))
-
+            new_pdf = notes(NOTE_ID=pdf_uuid, NOTE_NAME=pdf_name, TEACHER_ID=current_user.ID,
+                            DEPARTMENT_ID=current_user.department_id, DATE_ADDED=datetime.now())
+            db.session.add(new_pdf)
+            db.session.commit()
+            message = "Notes Uploaded Successfully!"
+            flash(message, 'success')
+        return redirect(url_for('upload_notes'))
 
 '''
     - Make new page for questions upload (Teachers)
@@ -483,24 +499,17 @@ def pdf_upload():
     - 
 
 '''
-
-
-@app.route('/generatepaper', methods=['GET', 'POST'])
-def generate_paper():
-    return render_template('teacher/generatepaper.html')
-
-
-@app.route('/uploadpaper', methods=['GET', 'POST'])
-def upload_paper():
-    return render_template('teacher/teacheruploadsection.html')
+@app.route('/upload-notes', methods=['GET', 'POST'])
+def upload_notes():
+    return render_template('teacher/notesuploadsection.html')
 
 
 # teachers upload
 
-@app.route('/teacher-upload', methods=['GET', 'POST'])
-@login_required
-def notes_upload():
-    return render_template('teacher/generatepaper.html')
+# @app.route('/teacher-upload', methods=['GET', 'POST'])
+# @login_required
+# def notes_upload():
+#     return render_template('teacher/generatepaper.html')
 
 
 # students
@@ -549,26 +558,78 @@ def read_pdf(file):
     return text
 
 
-@app.route('/qp', methods=['GET', 'POST'])
-def index():
-    questions = []
+# @app.route('/question-paper-upload', methods=['GET', 'POST'])
+# def question_paper_upload():
+#     questions1 = []
+#     extracted_text = ''
+#     if 'file' in request.files:
+#         file1 = request.files['file']
+#         if file1.filename.endswith('.docx'):
+#             extracted_text = read_docx(file1)
+#         elif file1.filename.endswith('.pdf'):
+#             extracted_text = read_pdf(file1)
+#
+#     if 'inputBox' in request.form:
+#         if request.method == 'POST':
+#             input_text = request.form.get('inputBox')
+#             questions1 = input_text.split('\n')
+#
+#     if 'extract-text' in request.form:
+#         question_paper_uuid = str(uuid.uuid4())
+#         new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf', DATE_CREATED=datetime.now())
+#         db.session.add(new_question_paper)
+#         db.session.commit()
+#
+#         if 'submit-questions' in request.form:
+#             for question in questions1:
+#                 new_question = questions(Q_ID=str(uuid.uuid4()),Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'], QP_ID=question_paper_uuid)
+#                 db.session.add(new_question)
+#                 db.session.commit()
+#                 message = 'Questions Uploaded Successfully'
+#                 flash(message, 'success')
+#
+#
+#     print(f'{extracted_text}--------------pdf------------')
+#     return render_template('teacher/questionpaperupload.html', questions1=questions1, extracted_text=extracted_text)
+@app.route('/question-paper-upload', methods=['GET', 'POST'])
+def question_paper_upload():
+    questions_list = []
     extracted_text = ''
-    if 'file' in request.files:
-        file1 = request.files['file']
-        if file1.filename.endswith('.docx'):
-            extracted_text = read_docx(file1)
-        elif file1.filename.endswith('.pdf'):
-            extracted_text = read_pdf(file1)
+    if request.method == 'POST':
+        if 'file' in request.files:
+            file1 = request.files['file']
+            if file1.filename.endswith('.docx'):
+                extracted_text = read_docx(file1)
+            elif file1.filename.endswith('.pdf'):
+                extracted_text = read_pdf(file1)
 
-    if 'inputBox' in request.form:
-        if request.method == 'POST':
+        if 'inputBox' in request.form:
             input_text = request.form.get('inputBox')
-            questions = input_text.split('\n')
+            questions_list = input_text.split('\r')
+
+        question_paper_uuid = str(uuid.uuid4())
+        if 'extract-text' in request.form:
+            new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf', DATE_CREATED=datetime.now())
+            db.session.add(new_question_paper)
+            db.session.commit()
+
+        print(questions_list)
+        if 'submit-questions' in request.form:
+            for question in questions_list:
+                print(f'{question}--This is the question---')
+                new_question = questions(Q_ID=str(uuid.uuid4()),Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'], QP_ID=question_paper_uuid)
+                db.session.add(new_question)
+                db.session.commit()
+            message = 'Questions Uploaded Successfully'
+            flash(message, 'success')
 
     print(f'{extracted_text}--------------pdf------------')
-    return render_template('questionpaperupload.html', questions=questions, extracted_text=extracted_text)
+    return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
+                           extracted_text=extracted_text)
+'''
+Fix the issue with the questions not being added to the database
 
-
+'''
 # main
 if __name__ == '__main__':
     app.run(debug=True)
