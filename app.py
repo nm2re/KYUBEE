@@ -1,3 +1,4 @@
+import json
 import os
 import uuid
 from datetime import datetime
@@ -135,8 +136,8 @@ class question_papers(db.Model, UserMixin):
 
 
 class questions(db.Model, UserMixin):
-    Q_ID = db.Column(db.Integer, primary_key=True)
-    Q_DETAILS = db.Column(db.String(90), nullable=False)
+    Q_ID = db.Column(db.String(36), primary_key=True, unique=True)
+    Q_DETAILS = db.Column(db.String(250), nullable=False)
     Q_TAGS = db.Column(db.JSON, nullable=False)
     QP_ID = db.Column(db.String(36), db.ForeignKey('question_papers.QP_ID'))
 
@@ -171,6 +172,20 @@ def insert_departments():
         # Commit the changes to the database
     db.session.commit()
     return 'Example departments inserted successfully!'
+
+
+@app.route('/createdatabase')
+def create_database():
+    with app.app_context():
+        db.create_all()
+    return 'Database Created'
+
+
+@app.route('/deletedatabase')
+def delete_database():
+    with app.app_context():
+        db.drop_all()
+    return 'Database deleted'
 
 
 # ------------------------FORMS-----------------------------
@@ -493,12 +508,15 @@ def pdf_upload():
             flash(message, 'success')
         return redirect(url_for('upload_notes'))
 
+
 '''
     - Make new page for questions upload (Teachers)
     - 3 containers --> pdf, textbox, each div for questions with tags
     - 
 
 '''
+
+
 @app.route('/upload-notes', methods=['GET', 'POST'])
 def upload_notes():
     return render_template('teacher/notesuploadsection.html')
@@ -548,12 +566,9 @@ def read_docx(file):
 def read_pdf(file):
     pdf_document = PyPDF2.PdfReader(file)
     text = ''
-    print(f'{pdf_document}--Pdf document')
     for page_num in range(len(pdf_document.pages)):
         page = pdf_document.pages[page_num]
-        print(f"{page}--Page")
         text += page.extract_text()
-    print(f'{text}--Text')
     file.close()
     return text
 
@@ -591,9 +606,51 @@ def read_pdf(file):
 #
 #     print(f'{extracted_text}--------------pdf------------')
 #     return render_template('teacher/questionpaperupload.html', questions1=questions1, extracted_text=extracted_text)
+# @app.route('/question-paper-upload', methods=['GET', 'POST'])
+# def question_paper_upload():
+#     questions_list = []
+#     extracted_text = ''
+#     if request.method == 'POST':
+#         if 'file' in request.files:
+#             file1 = request.files['file']
+#             if file1.filename.endswith('.docx'):
+#                 extracted_text = read_docx(file1)
+#             elif file1.filename.endswith('.pdf'):
+#                 extracted_text = read_pdf(file1)
+#
+#         if 'inputBox' in request.form:
+#             input_text = request.form.get('inputBox')
+#             questions_list = input_text.split('\n')
+#
+#         question_paper_uuid = str(uuid.uuid4())
+#         if 'extract-text' in request.form:
+#             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
+#                                                  DATE_CREATED=datetime.now())
+#             db.session.add(new_question_paper)
+#             db.session.commit()
+#
+#         print(questions_list)
+#         if 'submit-questions' in request.form:
+#             for question in questions_list:
+#                 print(f'{question}--This is the question---')
+#                 new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'],
+#                                          QP_ID=question_paper_uuid)
+#                 db.session.add(new_question)
+#                 db.session.commit()
+#             message = 'Questions Uploaded Successfully'
+#             flash(message, 'success')
+#     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
+#                            extracted_text=extracted_text)
+
+
+'''
+Fix the issue with the questions not being added to the database
+'''
+questions_list = []
+
+
 @app.route('/question-paper-upload', methods=['GET', 'POST'])
 def question_paper_upload():
-    questions_list = []
     extracted_text = ''
     if request.method == 'POST':
         if 'file' in request.files:
@@ -605,31 +662,91 @@ def question_paper_upload():
 
         if 'inputBox' in request.form:
             input_text = request.form.get('inputBox')
-            questions_list = input_text.split('\r')
+
+            for i in input_text.split('\r\n'):
+                if i:
+                    questions_list.append(i)
+            print(f"{questions_list = }")  # printing
 
         question_paper_uuid = str(uuid.uuid4())
         if 'extract-text' in request.form:
-            new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf', DATE_CREATED=datetime.now())
+            new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
+                                                 DATE_CREATED=datetime.now())
+            print(f"This is new question paper---{new_question_paper}---")
             db.session.add(new_question_paper)
             db.session.commit()
 
-        print(questions_list)
-        if 'submit-questions' in request.form:
-            for question in questions_list:
-                print(f'{question}--This is the question---')
-                new_question = questions(Q_ID=str(uuid.uuid4()),Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'], QP_ID=question_paper_uuid)
-                db.session.add(new_question)
-                db.session.commit()
-            message = 'Questions Uploaded Successfully'
-            flash(message, 'success')
+        print(request.form.keys())
+        # ---------------------------------Submit Questions---------------------------------
 
-    print(f'{extracted_text}--------------pdf------------')
+        if 'submit-question' in request.form:
+            # Check if questions_list is not empty
+            print(f'{questions_list}---This is the questions list---')
+            if questions_list:
+                for question in questions_list:
+                    # Check if the question is not an empty string
+                    if question:
+                        print(f'{question}--This is the question---')
+                        new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'],
+                                                 QP_ID=question_paper_uuid)
+                        print(f"This is a new question---{new_question}---")
+                        db.session.add(new_question)
+                        db.session.commit()
+                message = 'Questions Uploaded Successfully'
+                flash(message, 'success')
+            else:
+                message = 'No questions found to upload'
+                flash(message, 'error')
     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
                            extracted_text=extracted_text)
-'''
-Fix the issue with the questions not being added to the database
 
-'''
+
+# @app.route('/question-paper-upload', methods=['GET', 'POST'])
+# def question_paper_upload():
+#     questions_list = []
+#     extracted_text = ''
+#     if request.method == 'POST':
+#         if 'file' in request.files:
+#             file1 = request.files['file']
+#             if file1.filename.endswith('.docx'):
+#                 extracted_text = read_docx(file1)
+#             elif file1.filename.endswith('.pdf'):
+#                 extracted_text = read_pdf(file1)
+#
+#         if 'questions' in request.form:
+#             questions_list = json.loads(request.form.get('questions'))
+#
+#         question_paper_uuid = str(uuid.uuid4())
+#         if questions_list:
+#             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
+#                                                  DATE_CREATED=datetime.now())
+#             db.session.add(new_question_paper)
+#             db.session.commit()
+#
+#             for question in questions_list:
+#                 new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'],
+#                                          QP_ID=question_paper_uuid)
+#                 db.session.add(new_question)
+#                 db.session.commit()
+#             message = 'Questions Uploaded Successfully'
+#             flash(message, 'success')
+#         else:
+#             message = 'No questions found to upload'
+#             flash(message, 'error')
+#     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
+#                            extracted_text=extracted_text)
+
+"""
+Completed adding questions into database
+- Cleaning data
+- Cleaning Code
+- Add dashboard (?)
+- Fetch Question Paper = Student
+- Search Teachers = Student
+- Fetch Notes = Student
+- Backref for questions
+
+"""
 # main
 if __name__ == '__main__':
     app.run(debug=True)
