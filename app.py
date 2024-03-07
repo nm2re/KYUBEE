@@ -14,7 +14,7 @@ from flask import render_template
 import validators
 from pdf2image import convert_from_path
 from sqlalchemy.orm import relationship
-from wtforms import IntegerField, RadioField, ValidationError
+from wtforms import ValidationError
 from flask_wtf import FlaskForm
 # from wtforms import validators
 from wtforms.fields.simple import SubmitField, PasswordField, StringField
@@ -259,13 +259,25 @@ def student_dashboard():
     # elif current_user.type == 1:
     #     logged_user = teacher_login.query.get(user_id)
 
-    print(current_user.EMAIL)
-    print(current_user.type)
+    # print(current_user.EMAIL)
+    # print(current_user.type)
+
+    pdfs = os.listdir('zfile_processing/pdf_storing')
+    previews_folder = 'zfile_processing/previews'
+    if not os.path.exists(previews_folder):
+        os.makedirs(previews_folder)
+
+    for pdf in pdfs:
+        preview_path = os.path.join(previews_folder, pdf + '.png')
+        if not os.path.exists(preview_path):
+            images = convert_from_path(os.path.join('static/pdfs', pdf), size=(200, 282), single_file=True)
+            images[0].save(preview_path, 'PNG')
 
     if current_user:
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
         flash('User not found', 'error')
+
     return render_template('student/studentdashboard.html', current_user=current_user)
 
 
@@ -469,13 +481,6 @@ def register():
     return render_template('login_register/registration.html', form=form)
 
 
-# Display pdfs
-# @app.route('/pdf')
-# def pdf_view():
-#     pdf_path = "/static/pdfs/BCA332.pdf"
-#     return redirect(pdf_path)
-
-
 # Storing pdfs
 @app.route('/pdfupload', methods=['GET', 'POST'])
 def pdf_upload():
@@ -516,26 +521,17 @@ def pdf_upload():
 
 '''
 
-
 @app.route('/upload-notes', methods=['GET', 'POST'])
 def upload_notes():
     return render_template('teacher/notesuploadsection.html')
-
-
-# teachers upload
-
-# @app.route('/teacher-upload', methods=['GET', 'POST'])
-# @login_required
-# def notes_upload():
-#     return render_template('teacher/generatepaper.html')
-
 
 # students
 @app.route('/notes', methods=['GET', 'POST'])
 @login_required
 def notes_display():
-    pdfs = os.listdir('static/pdfs')
-    previews_folder = 'static/previews'
+
+    pdfs = os.listdir('zfile_processing/pdf_storing')
+    previews_folder = 'zfile_processing/previews'
     if not os.path.exists(previews_folder):
         os.makedirs(previews_folder)
 
@@ -571,76 +567,6 @@ def read_pdf(file):
         text += page.extract_text()
     file.close()
     return text
-
-
-# @app.route('/question-paper-upload', methods=['GET', 'POST'])
-# def question_paper_upload():
-#     questions1 = []
-#     extracted_text = ''
-#     if 'file' in request.files:
-#         file1 = request.files['file']
-#         if file1.filename.endswith('.docx'):
-#             extracted_text = read_docx(file1)
-#         elif file1.filename.endswith('.pdf'):
-#             extracted_text = read_pdf(file1)
-#
-#     if 'inputBox' in request.form:
-#         if request.method == 'POST':
-#             input_text = request.form.get('inputBox')
-#             questions1 = input_text.split('\n')
-#
-#     if 'extract-text' in request.form:
-#         question_paper_uuid = str(uuid.uuid4())
-#         new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf', DATE_CREATED=datetime.now())
-#         db.session.add(new_question_paper)
-#         db.session.commit()
-#
-#         if 'submit-questions' in request.form:
-#             for question in questions1:
-#                 new_question = questions(Q_ID=str(uuid.uuid4()),Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'], QP_ID=question_paper_uuid)
-#                 db.session.add(new_question)
-#                 db.session.commit()
-#                 message = 'Questions Uploaded Successfully'
-#                 flash(message, 'success')
-#
-#
-#     print(f'{extracted_text}--------------pdf------------')
-#     return render_template('teacher/questionpaperupload.html', questions1=questions1, extracted_text=extracted_text)
-# @app.route('/question-paper-upload', methods=['GET', 'POST'])
-# def question_paper_upload():
-#     questions_list = []
-#     extracted_text = ''
-#     if request.method == 'POST':
-#         if 'file' in request.files:
-#             file1 = request.files['file']
-#             if file1.filename.endswith('.docx'):
-#                 extracted_text = read_docx(file1)
-#             elif file1.filename.endswith('.pdf'):
-#                 extracted_text = read_pdf(file1)
-#
-#         if 'inputBox' in request.form:
-#             input_text = request.form.get('inputBox')
-#             questions_list = input_text.split('\n')
-#
-#         question_paper_uuid = str(uuid.uuid4())
-#         if 'extract-text' in request.form:
-#             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
-#                                                  DATE_CREATED=datetime.now())
-#             db.session.add(new_question_paper)
-#             db.session.commit()
-#
-#         print(questions_list)
-#         if 'submit-questions' in request.form:
-#             for question in questions_list:
-#                 print(f'{question}--This is the question---')
-#                 new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'],
-#                                          QP_ID=question_paper_uuid)
-#                 db.session.add(new_question)
-#                 db.session.commit()
-#             message = 'Questions Uploaded Successfully'
-#             flash(message, 'success')
-#     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
-#                            extracted_text=extracted_text)
 
 
 '''
@@ -692,49 +618,13 @@ def question_paper_upload():
                         print(f"This is a new question---{new_question}---")
                         db.session.add(new_question)
                         db.session.commit()
-                message = 'Questions Uploaded Successfully'
-                flash(message, 'success')
-            else:
-                message = 'No questions found to upload'
-                flash(message, 'error')
-    return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
-                           extracted_text=extracted_text)
+                # message = 'Questions Uploaded Successfully'
+                # flash(message, 'success')
 
+                # message = 'No questions found to upload'
+                # flash(message, 'error')
+    return render_template('teacher/questionpaperupload.html',questions_list=questions_list,extracted_text=extracted_text)
 
-# @app.route('/question-paper-upload', methods=['GET', 'POST'])
-# def question_paper_upload():
-#     questions_list = []
-#     extracted_text = ''
-#     if request.method == 'POST':
-#         if 'file' in request.files:
-#             file1 = request.files['file']
-#             if file1.filename.endswith('.docx'):
-#                 extracted_text = read_docx(file1)
-#             elif file1.filename.endswith('.pdf'):
-#                 extracted_text = read_pdf(file1)
-#
-#         if 'questions' in request.form:
-#             questions_list = json.loads(request.form.get('questions'))
-#
-#         question_paper_uuid = str(uuid.uuid4())
-#         if questions_list:
-#             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
-#                                                  DATE_CREATED=datetime.now())
-#             db.session.add(new_question_paper)
-#             db.session.commit()
-#
-#             for question in questions_list:
-#                 new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'],
-#                                          QP_ID=question_paper_uuid)
-#                 db.session.add(new_question)
-#                 db.session.commit()
-#             message = 'Questions Uploaded Successfully'
-#             flash(message, 'success')
-#         else:
-#             message = 'No questions found to upload'
-#             flash(message, 'error')
-#     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
-#                            extracted_text=extracted_text)
 
 """
 Completed adding questions into database
@@ -745,7 +635,6 @@ Completed adding questions into database
 - Search Teachers = Student
 - Fetch Notes = Student
 - Backref for questions
-
 """
 # main
 if __name__ == '__main__':
