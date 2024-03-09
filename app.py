@@ -626,6 +626,20 @@ def question_paper_upload():
     return render_template('teacher/questionpaperupload.html',questions_list=questions_list,extracted_text=extracted_text)
 
 
+@app.route('/notes-search', methods=['GET', 'POST'])
+@login_required
+def student_notes_search():
+    return render_template('student/studentsearch.html')
+
+
+@app.route('/search')
+def search():
+    query = request.args.get('query', '')
+    results = Document.query.filter(Document.title.like(f'%{query}%')).all()
+    return jsonify([document.to_dict() for document in results])
+
+
+
 """
 Completed adding questions into database
 - Cleaning data

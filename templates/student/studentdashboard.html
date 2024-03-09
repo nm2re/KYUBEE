@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="shortcut icon" href="/assets/favicon.ico">
-<!--    <link rel="stylesheet" href="{{ url_for('static', filename='cataloguestyle.css') }}">   -->
+    <!--    <link rel="stylesheet" href="{{ url_for('static', filename='cataloguestyle.css') }}">   -->
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,7 @@
     <nav class="bg-black border-gray-200 dark:bg-gray-900">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
 
-            <a href="" class="flex">
+            <a href="{{ url_for('student_dashboard') }}" class="flex">
                 <img src="../../static/images/logo3.png" class="h-14 flex-shrink-0 ml-auto" alt="Kyubee Logo" />
                 <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
             </a>
@@ -30,14 +30,14 @@
                 <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                      viewBox="0 0 17 14">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M1 1h15M1 7h15M1 13h15" />
+                          d="M1 1h15M1 7h15M1 13h15"/>
                 </svg>
             </button>
             <div class="hidden w-full md:block md:w-auto mt-3" id="navbar-default">
                 <ul
                         class="font-medium flex flex-col p-4 md:p-0 mt-3 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                     <li>
-                        <a href="#"
+                        <a href="{{ url_for('student_dashboard') }}"
                            class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
                            aria-current="page">Home</a>
                     </li>
@@ -45,6 +45,11 @@
                     <li>
                         <a href="#"
                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Generate Paper</a>
+                    </li>
+
+                    <li>
+                        <a href="#"
+                           class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Search Notes</a>
                     </li>
 
                     <li>
@@ -61,21 +66,6 @@
                             <div class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                                 <div>{{ current_user.EMAIL }}</div>
                             </div>
-                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200"
-                                aria-labelledby="avatarButton">
-                                <li>
-                                    <a href="#"
-                                       class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                       class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                       class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</a>
-                                </li>
-                            </ul>
                             <div class="py-1">
                                 <a href="{{url_for('logout')}}"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign
@@ -91,15 +81,15 @@
 
 <div class="alert bg-opacity-50">
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                {% if 'Current User Logged In' in message %}
-                    <div class="alert text-white">
-                        {{ message }}
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if 'Current User Logged In' in message %}
+    <div class="alert text-white">
+        {{ message }}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 </div>
 
@@ -111,7 +101,7 @@
             current_user.last_name}}</h1>
         <button id="scrollButton"
                 class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl px-12 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mt-12">
-            Notes and PDFs
+            My Notes and PDFs
         </button>
     </div>
 
@@ -123,6 +113,19 @@
         <h1 class="text-2xl text-white font-bold text-center mb-8">PDF Catalogue</h1>
         <div class="grid grid-cols-5 gap-4">
             <!-- Repeat this block for each PDF item -->
+
+            <!--            {% for pdf in pdfs %}-->
+            <!--            <div class="pdf-item">-->
+            <!--                <a href="{{ url_for('static', filename='pdfs/' + pdf) }}" target="_blank">-->
+            <!--                    <div class="pdf-thumbnail">-->
+            <!--                        <img src="{{ url_for('static', filename='previews/' + pdf + '.png') }}" alt="PDF Thumbnail">-->
+            <!--                    </div>-->
+            <!--                    <div class="pdf-title">{{ pdf }}</div>-->
+            <!--                </a>-->
+            <!--            </div>-->
+            <!--            {% endfor %}-->
+
+
             <div class="bg-white rounded-lg shadow">
                 <div class="p-4">
                     <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
@@ -140,7 +143,7 @@
                 <div class="p-4">
                     <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
                         <!-- Placeholder for PDF thumbnail -->
-                        <span class="text-gray-500">PDF Thumbnail</span>
+                        <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
                     </div>
                     <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
                     <p class="text-sm text-gray-600">Description of the PDF.</p>
@@ -247,7 +250,6 @@
     });
 </script>
 <script>
-
     function preview(input) {
     var preview_object = document.getElementById('preview-pdf');
     preview_object.innerHTML = "";
