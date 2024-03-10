@@ -100,91 +100,116 @@
 </div>
 
 
-<main class="h-[100vh] w-full bg-cover bg-center bg-no-repeat" >
+<main class="h-[100vh] w-full bg-cover bg-center bg-no-repeat">
     <div class="flex flex-col justify-start items-center pt-40 gap-5">
-        <h1 class="text-7xl font-medium text-white mt-22">WELCOME {{current_user.first_name + " " +
-            current_user.last_name}}</h1>
-<!--        <h1 class="text-7xl font-medium text-white mt-12"></h1>-->
+        <h1 class="text-7xl font-medium text-white mt-22">WELCOME {{current_user.first_name + " " + current_user.last_name}}</h1>
+        <button id="scrollButton"
+                class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-2xl px-12 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mt-12">
+            My Notes and PDFs
+        </button>
+    </div>
+</main>
+
+<section id="section2" class="w-2/3 mx-auto py-20">
+    <!-- PDF Catalogue -->
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl text-white font-bold text-center mb-8">Question Paper Catalogue</h1>
+        <div class="grid grid-cols-5 gap-4">
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <img src="../static/previews/1.pdf.png" alt="PDF Thumbnail" class="max-w-full max-h-full rounded">
+                        <!--                        <span class="text-gray-500">PDF Thumbnail</span>-->
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <span class="text-gray-500">PDF Thumbnail</span>
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <span class="text-gray-500">PDF Thumbnail</span>
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <span class="text-gray-500">PDF Thumbnail</span>
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+            <!-- Repeat the block above for each PDF item -->
+        </div>
+    </div>
+    <!-- Notes Catalogue -->
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl text-white font-bold text-center mb-8">Notes Catalogue</h1>
+       <div class="grid grid-cols-5 gap-4"> {{ all_notes_string|safe }}</div>
+
+    </div>
     </div>
 
 
-<!--    <form>-->
-<!--        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>-->
-<!--        <div class="relative max-w-4xl mx-auto mt-16"> &lt;!&ndash; Set max width and center the container &ndash;&gt;-->
-<!--            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"> &lt;!&ndash; Adjusted position of the search icon &ndash;&gt;-->
-<!--                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">-->
-<!--                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>-->
-<!--                </svg>-->
-<!--            </div>-->
+</section>
+<script>
+    document.getElementById('scrollButton').addEventListener('click', function() {
+      smoothScroll('#section2');
+    });
 
-<!--            <input type="search" id="default-search" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Question Papers, Notes..." required>-->
-<!--            <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>-->
-<!--        </div>-->
-<!--    </form>-->
-</main>
-
-<!--<section class="w-2/3 mx-auto py-20">-->
-<!--    <h1 class="flex justify-center font-white text-4xl text-white">UPLOAD SECTION</h1>-->
-<!--    <div class="flex justify-center">-->
-<!--        <form action="{{ url_for('pdf_upload') }}" class="my-20" enctype="multipart/form-data" method="post">-->
-
-<!--            <label class="block mb-2 text-md font-medium text-white" for="file_input">Upload file</label>-->
-<!--            <div class="flex justify-between">-->
-<!--                <input type="file" name="file_input" onChange="preview(this)"-->
-<!--                       class="block w-128 text-md text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50"-->
-<!--                       aria-describedby="file_input_help" id="file_input">-->
-<!--                <button type="submit"-->
-<!--                        class="px-5 py-1 rounded bg-yellow-500 text-black text-sm">Select PDF File</button>-->
-<!--            </div>-->
-<!--            <p class="mt-1 text-md text-gray-500" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>-->
-
-<!--            <div class="flex" id="preview-pdf">-->
-<!--                <iframe src=""></iframe>-->
-<!--            </div>-->
-
-<!--            <script>-->
-
-<!--                function preview(input) {-->
-<!--                var preview_object = document.getElementById('preview-pdf');-->
-<!--                preview_object.innerHTML = "";-->
-
-<!--                var file = input.files[0];-->
-<!--                 console.log((window.URL ? URL : webkitURL).createObjectURL(file));-->
-<!--                var iframe = document.createElement('iframe');-->
-<!--                iframe.src = (window.URL ? URL : webkitURL).createObjectURL(file);-->
-<!--                iframe.style.height = '900px';-->
-<!--                iframe.style.width = '800px';-->
-<!--                preview_object.appendChild(iframe);-->
-<!--                }-->
-<!--            </script>-->
-
-<!--            &lt;!&ndash;            <h1 class="text-center text-3xl font-black">OR</h1>&ndash;&gt;-->
-<!--            &lt;!&ndash;            <div id="questions-input-div">&ndash;&gt;-->
-<!--            &lt;!&ndash;                <div class="mb-6">&ndash;&gt;-->
-<!--            &lt;!&ndash;                    <label for="default-input" class="block mb-2 text-sm font-medium text-gray-900">Enter your&ndash;&gt;-->
-<!--            &lt;!&ndash;                        question here</label>&ndash;&gt;-->
-<!--            &lt;!&ndash;                    <input name="question" type="text" id="default-input" autocomplete="off"&ndash;&gt;-->
-<!--            &lt;!&ndash;                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">&ndash;&gt;-->
-<!--            &lt;!&ndash;                </div>&ndash;&gt;-->
-<!--            &lt;!&ndash;            </div>&ndash;&gt;-->
-
-<!--            &lt;!&ndash;            <div class="flex justify-between">&ndash;&gt;-->
-<!--            &lt;!&ndash;                <button type="button" id="questionBtn"&ndash;&gt;-->
-<!--            &lt;!&ndash;                        class="px-2 py-1 rounded bg-orange-500 text-white text-sm">Add Question</button>&ndash;&gt;-->
-<!--            &lt;!&ndash;                <button type="Submit" id="questionBtn"&ndash;&gt;-->
-<!--            &lt;!&ndash;                        class="px-2 py-1 rounded bg-green-500 text-white text-sm">Submit</button>&ndash;&gt;-->
-<!--            &lt;!&ndash;            </div>&ndash;&gt;-->
-<!--        </form>-->
-<!--    </div>-->
-
-<!--    <div class="flex justify-center">-->
-<!--        <button type="submit" class="px-8 py-2 rounded bg-yellow-500 text-black text-lg">-->
-<!--            Convert PDF-->
-<!--        </button>-->
-<!--    </div>-->
-
-<!--</section>-->
+    function smoothScroll(targetSelector) {
+        const targetElement = document.querySelector(targetSelector);
+        if (targetElement) {
+            window.scrollTo({
+            top: targetElement.offsetTop,
+            behavior: 'smooth'
+            });
+        }
+    }
+</script>
+<script>
+    const button = document.getElementById('noteButton');
+        button.addEventListener('click', function () {
+    window.open('/notes-display?pdf=' + uuid, '_blank');
+    });
+</script>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 </body>

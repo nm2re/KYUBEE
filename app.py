@@ -1,25 +1,22 @@
-import json
 import os
 import uuid
+from contextlib import suppress
 from datetime import datetime
-from fileinput import filename
-import fitz
+
 import PyPDF2
 import docx
-from flask_bcrypt import Bcrypt
-from flask import Flask, redirect, url_for, request, flash, Response, send_from_directory
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
-from flask import render_template
 import validators
+from flask import Flask, redirect, url_for, request, flash, send_from_directory, render_template
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
 from pdf2image import convert_from_path
 from sqlalchemy.orm import relationship
 from wtforms import ValidationError
-from flask_wtf import FlaskForm
-# from wtforms import validators
-from wtforms.fields.simple import SubmitField, PasswordField, StringField
+from wtforms.fields.simple import PasswordField, StringField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
-from flask_migrate import Migrate
 
 app = Flask(__name__)
 
@@ -36,22 +33,6 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-
-# @login_manager.user_loader
-# def load_user(id):
-#     student_user = student_login.query.get(id)
-#     teacher_user = teacher_login.query.get(id)
-#     if student_user:
-#         student_user.type = 0
-#         student_user.name = db.session.query(students).filter_by(STUDENT_ID=id).get(FIRST_NAME) + db.session.query(students).filter_by(STUDENT_ID=id).get(LAST_NAME)
-#         return student_user
-#     elif teacher_user:
-#         teacher_user.type = 1
-#         teacher_user.name = db.session.query(teachers).filter_by(TEACHER_ID=id).get(FIRST_NAME) + db.session.query(students).filter_by(TEACHER_ID=id).get(LAST_NAME)
-#         return teacher_user
-#     else:
-#         None
 
 
 @login_manager.user_loader
@@ -130,6 +111,7 @@ class teachers(db.Model, UserMixin):
 
 class question_papers(db.Model, UserMixin):
     QP_ID = db.Column(db.String(36), primary_key=True, unique=True)
+    QP_NAME = db.Column(db.String(50))
     TEACHER_ID = db.Column(db.String(36), db.ForeignKey('teachers.TEACHER_ID'))
     FILE_TYPE = db.Column(db.String(10), nullable=False)
     DATE_CREATED = db.Column(db.Date, nullable=False)
@@ -291,7 +273,34 @@ def teacher_dashboard():
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
         flash('User not found', 'error')
-    return render_template('teacher/teacherdashboard.html', current_user=current_user)
+
+    all_notes_string = '''
+    '''
+    all_notes = db.session.query(notes).all()
+    for note in all_notes:
+        all_notes_string += f'''
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-4">
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                    <span class="text-gray-500">
+                    <img src= {url_for('thumbnails', file=note.NOTE_ID + '.png', type='note')} alt="Note Preview" class="w-48 h-48">
+                    </span>
+                </div>
+                <h3 class="mt-2 text-lg font-medium">{note.NOTE_NAME}</h3> 
+                <button id="noteButton" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 
+                transition-colors">View Note</button> 
+            </div> 
+        </div>'''
+
+    return render_template('teacher/teacherdashboard.html', current_user=current_user,
+                           all_notes_string=all_notes_string,
+                           )
+
+
+@app.route('/notes-display', methods=['GET'])
+def display_note():
+    # return render_template('notes_preview.html',pdf = request.args.get('pdf'))
+    return send_from_directory('zfile_processing/teacher_pdf_storing', request.args.get('pdf'), as_attachment=False)
 
 
 @app.route('/student-profile-page', methods=['GET', 'POST'])
@@ -484,30 +493,36 @@ def register():
 # Storing pdfs
 @app.route('/pdfupload', methods=['GET', 'POST'])
 def pdf_upload():
-    if current_user.type == 0:  # Student
-        student_storage = 'zfile_processing/pdf_storing'
-        pdf_file = request.files['file_input']
-        if pdf_file and pdf_file.filename.endswith('.pdf'):
-            pdf_file.filename = str(uuid.uuid4()) + ".pdf"
-            student_pdf_file = pdf_file.filename
-            pdf_path = os.path.join(student_storage, student_pdf_file)
-            pdf_file.save(pdf_path)
+    # if current_user.type == 0:  # Student
+    #     student_storage = 'zfile_processing/pdf_storing'
+    #     pdf_file = request.files['file_input']
+    #     if pdf_file and pdf_file.filename.endswith('.pdf'):
+    #         pdf_file.filename = str(uuid.uuid4()) + ".pdf"
+    #         student_pdf_file = pdf_file.filename
+    #         pdf_path = os.path.join(student_storage, student_pdf_file)
+    #         pdf_file.save(pdf_path)
+    #
+    #     return redirect(url_for('student_dashboard'))
 
-        return redirect(url_for('student_dashboard'))
-
-    elif current_user.type == 1:  # Teacher
+    if current_user.type == 1:  # Teacher
         teacher_storage = 'zfile_processing/teacher_pdf_storing'
+        preview_storage = 'zfile_processing/previews'
         pdf_file = request.files['file_input']
+        print(pdf_file.name)
+        print(pdf_file.filename)
         if pdf_file and pdf_file.filename.endswith('.pdf'):
             pdf_uuid = str(uuid.uuid4())
             pdf_name = request.form.get('pdf-name')
             pdf_file.filename = pdf_uuid + ".pdf"
             teacher_pdf_file = pdf_file.filename
             pdf_path = os.path.join(teacher_storage, teacher_pdf_file)
+            preview_path = os.path.join(preview_storage, pdf_uuid) + ".png"
             pdf_file.save(pdf_path)
-            new_pdf = notes(NOTE_ID=pdf_uuid, NOTE_NAME=pdf_name, TEACHER_ID=current_user.ID,
-                            DEPARTMENT_ID=current_user.department_id, DATE_ADDED=datetime.now())
-            db.session.add(new_pdf)
+            images = convert_from_path(pdf_path, size=(200, 282), single_file=True)
+            images[0].save(preview_path, 'PNG')
+            new_note = notes(NOTE_ID=pdf_uuid, NOTE_NAME=pdf_name, TEACHER_ID=current_user.ID,
+                             DEPARTMENT_ID=current_user.department_id, DATE_ADDED=datetime.now())
+            db.session.add(new_note)
             db.session.commit()
             message = "Notes Uploaded Successfully!"
             flash(message, 'success')
@@ -521,15 +536,42 @@ def pdf_upload():
 
 '''
 
+
+# @app.route('/question-upload', methods=['GET', 'POST'])
+# def question_upload():
+#     teacher_question_storage = 'zfile_processing/teacher_question_storing'
+#     question_preview_storage = 'zfile_processing/question_previews'
+#     pdf_file = request.files['file_input']
+#     if pdf_file and pdf_file.filename.endswith('.pdf'):
+#         pdf_uuid = str(uuid.uuid4())
+#         pdf_name = request.form.get('question-name')
+#         pdf_file.filename = pdf_uuid + ".pdf"
+#         teacher_pdf_file = pdf_file.filename
+#         pdf_path = os.path.join(teacher_question_storage, teacher_pdf_file)
+#         preview_path = os.path.join(question_preview_storage, pdf_uuid) + ".png"
+#         pdf_file.save(pdf_path)
+#         images = convert_from_path(pdf_path, size=(200, 282), single_file=True)
+#         images[0].save(preview_path, 'PNG')
+#
+#         new_question_paper = question_papers(NOTE_ID=pdf_uuid, NOTE_NAME=pdf_name, TEACHER_ID=current_user.ID,
+#                          DEPARTMENT_ID=current_user.department_id, DATE_ADDED=datetime.now())
+#         db.session.add(new_note)
+#         db.session.commit()
+#         message = "Notes Uploaded Successfully!"
+#         flash(message, 'success')
+#
+#     return redirect(url_for('teacher_dashboard'))
+
+
 @app.route('/upload-notes', methods=['GET', 'POST'])
 def upload_notes():
     return render_template('teacher/notesuploadsection.html')
+
 
 # students
 @app.route('/notes', methods=['GET', 'POST'])
 @login_required
 def notes_display():
-
     pdfs = os.listdir('zfile_processing/pdf_storing')
     previews_folder = 'zfile_processing/previews'
     if not os.path.exists(previews_folder):
@@ -565,7 +607,6 @@ def read_pdf(file):
     for page_num in range(len(pdf_document.pages)):
         page = pdf_document.pages[page_num]
         text += page.extract_text()
-    file.close()
     return text
 
 
@@ -579,65 +620,120 @@ questions_list = []
 def question_paper_upload():
     extracted_text = ''
     if request.method == 'POST':
+        print("HERE HERE HERE")
+        with suppress(IndexError):
+            for question in questions_list:
+                print(f"QUESTION: {question}")
+                difficulty = request.form.get(f"{question}-difficulty")
+                print(f"Difficulty: {difficulty}")
+                print("\n\n")
+
+        pdf_name = ''
         if 'file' in request.files:
             file1 = request.files['file']
+            extension = ''
             if file1.filename.endswith('.docx'):
-                extracted_text = read_docx(file1)
+                extension = '.docx'
             elif file1.filename.endswith('.pdf'):
-                extracted_text = read_pdf(file1)
+                extension = '.pdf'
 
+            teacher_question_storage = 'zfile_processing/teacher_question_storing'
+            question_preview_storage = 'zfile_processing/question_previews'
+
+            if file1:
+                pdf_uuid = str(uuid.uuid4())
+
+                file1.filename = pdf_uuid + extension
+                teacher_pdf_file = file1.filename
+                pdf_path = os.path.join(teacher_question_storage, teacher_pdf_file)
+                preview_path = os.path.join(question_preview_storage, pdf_uuid) + ".png"
+                file1.save(pdf_path)
+                images = convert_from_path(pdf_path, size=(200, 282), single_file=True)
+                images[0].save(preview_path, 'PNG')
+                if extension == '.docx':
+                    extracted_text = read_docx(file1)
+                else:
+                    extracted_text = read_pdf(file1)
+                pdf_name = request.form.get('qp-name')
+
+            print(f'1-------------------{pdf_name}----------------------------------')
         if 'inputBox' in request.form:
             input_text = request.form.get('inputBox')
 
             for i in input_text.split('\r\n'):
                 if i:
                     questions_list.append(i)
-            print(f"{questions_list = }")  # printing
 
         question_paper_uuid = str(uuid.uuid4())
         if 'extract-text' in request.form:
+            print(f'2-------------------{pdf_name}----------------------------------')
             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
-                                                 DATE_CREATED=datetime.now())
-            print(f"This is new question paper---{new_question_paper}---")
+                                                 DATE_CREATED=datetime.now(), QP_NAME=pdf_name)
             db.session.add(new_question_paper)
             db.session.commit()
 
-        print(request.form.keys())
         # ---------------------------------Submit Questions---------------------------------
 
         if 'submit-question' in request.form:
             # Check if questions_list is not empty
-            print(f'{questions_list}---This is the questions list---')
             if questions_list:
                 for question in questions_list:
                     # Check if the question is not an empty string
                     if question:
-                        print(f'{question}--This is the question---')
-                        new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question, Q_TAGS=['tag1', 'tag2'],
+                        difficulty = request.form.get(f"{question}-difficulty")
+                        new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question,
+                                                 Q_TAGS=[difficulty, 'tag2'],
                                                  QP_ID=question_paper_uuid)
-                        print(f"This is a new question---{new_question}---")
                         db.session.add(new_question)
                         db.session.commit()
+            return redirect(url_for('teacher_dashboard', questions_list=questions_list, extracted_text=extracted_text))
                 # message = 'Questions Uploaded Successfully'
                 # flash(message, 'success')
 
                 # message = 'No questions found to upload'
                 # flash(message, 'error')
-    return render_template('teacher/questionpaperupload.html',questions_list=questions_list,extracted_text=extracted_text)
+    return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
+                           extracted_text=extracted_text)
+
+
+
+@app.route('/thumbnails', methods=['GET', 'POST'])
+def thumbnails():
+    dire = 'zfile_processing/'
+    if request.args.get('type') == 'question':
+        return send_from_directory('zfile_processing/question_previews/', request.args.get('file'))
+    elif request.args.get('type') == 'note':
+        return (send_from_directory('zfile_processing/previews/', request.args.get('file')))
+
+
+@app.route('/pdf-raw', methods=['GET', 'POST'])
+def pdf_raw():
+    dire = 'zfile_processing/'
+    if request.args.get('type') == 'question':
+        return send_from_directory('zfile_processing/teacher_question_storing/', request.args.get('file'))
+    elif request.args.get('type') == 'note':
+        return send_from_directory('zfile_processing/teacher_pdf_storing/', request.args.get('file'))
 
 
 @app.route('/notes-search', methods=['GET', 'POST'])
 @login_required
 def student_notes_search():
-    return render_template('student/studentsearch.html')
+    search_dict = {}
+    student_department = db.session.query(students).filter_by(STUDENT_ID=current_user.ID).first().DEPARTMENT_ID
+    all_notes = db.session.query(notes).filter_by(DEPARTMENT_ID=student_department).all()
+    for note in all_notes:
+        search_dict[note.NOTE_ID + ".pdf"] = note.NOTE_NAME
+    return render_template('student/studentsearch.html', search_dict=search_dict)
 
 
-@app.route('/search')
-def search():
-    query = request.args.get('query', '')
-    results = Document.query.filter(Document.title.like(f'%{query}%')).all()
-    return jsonify([document.to_dict() for document in results])
-
+@app.route('/student-generate-paper', methods=['GET', 'POST'])
+def student_generate_paper():
+    search_dict = {}
+    # student_department = db.session.query(students).filter_by(STUDENT_ID=current_user.ID).first().DEPARTMENT_ID
+    all_question_papers = db.session.query(question_papers).all()
+    for qp in all_question_papers:
+        search_dict[qp.QP_ID + ".pdf"] = qp.QP_NAME
+    return render_template('student/studentgeneratepaper.html',search_dict=search_dict)
 
 
 """
@@ -653,3 +749,20 @@ Completed adding questions into database
 # main
 if __name__ == '__main__':
     app.run(debug=True)
+
+#
+# <!--        results.forEach(result => {-->
+# <!--            const li = document.createElement('li');-->
+# <!--            const button = document.createElement('button');-->
+# <!--            button.onclick = function () {-->
+# <!--                window.open('/notes-display?pdf=' + result, '_blank'-->
+# <!--            };-->
+# <!--            button.textContent = data[result];-->
+# <!--            button.classList.add('p-2', 'border', 'rounded-md', 'mr-2', 'mb-2', 'focus:outline-none', 'focus:border-blue-500', 'transition', 'duration-150');-->
+# <!--            button.addEventListener('click', () => {-->
+# <!--                alert(`You clicked on ${result}`);-->
+# <!--                // You can perform additional actions when a button is clicked-->
+# <!--            });-->
+# <!--            li.appendChild(button);-->
+# <!--            ul.appendChild(li);-->
+# <!--        });-->

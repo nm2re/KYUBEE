@@ -128,7 +128,11 @@
 
 <main class="mx-auto mt-8 px-4 ">
     <h1 class="text-2xl font-bold mb-4 text-white">Question Separator</h1>
+
     <form method="POST" enctype="multipart/form-data" class="mb-4">
+        <input name="qp-name" id="qp-name" placeholder="Enter Question Paper Name"
+               class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-[300px] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-8"
+               autocomplete="off">
         <input class="text-white" type="file" name="file" accept=".pdf,.docx">
         <br>
         <!--        <button type="submit">Extract Text</button>-->
@@ -158,26 +162,36 @@
 <!--            </button>-->
 
 
-            <input type="submit" id="submit-question" name="submit-question"
-                    class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium   rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+<!--            <input type="submit" id="submit-question" name="submit-question"-->
+<!--                    class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium   rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">-->
 
 
         </form>
         <div>
-            {% for question in questions_list %}
-            {% if question|trim != '' %}
-            <div class="container1">
-                <div class="question">{{ question }}</div>
-                <div class="buttons">
-                    <button>Button 1</button>
-                    <button>Button 2</button>
-                    <button>Button 3</button>
-                    <button class="remove-button">Remove</button>
+            <form method="POST">
+                {% for question in questions_list %}
+                {% if question|trim != '' %}
+                <div class="container1">
+                    <input name="{{ question }}" class="question" value="{{ question }}">
+                    <div class="buttons">
+                        <select name="{{ question }}-difficulty">
+                            <option selected disabled>Select Difficulty</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                        <!-- <button>Button 1</button> -->
+                        <!-- <button>Button 2</button> -->
+                        <!-- <button>Button 3</button> -->
+                        <button class="remove-button">Remove</button>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
-            {% endfor %}
-        </div>
+                {% endif %}
+                {% endfor %}
+            <input type="submit" id="submit-question" name="submit-question"
+                    class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium   rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            </form>
+                   </div>
     </div>
 </main>
 
