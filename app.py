@@ -244,16 +244,16 @@ def student_dashboard():
     # print(current_user.EMAIL)
     # print(current_user.type)
 
-    pdfs = os.listdir('zfile_processing/pdf_storing')
-    previews_folder = 'zfile_processing/previews'
-    if not os.path.exists(previews_folder):
-        os.makedirs(previews_folder)
-
-    for pdf in pdfs:
-        preview_path = os.path.join(previews_folder, pdf + '.png')
-        if not os.path.exists(preview_path):
-            images = convert_from_path(os.path.join('static/pdfs', pdf), size=(200, 282), single_file=True)
-            images[0].save(preview_path, 'PNG')
+    # pdfs = os.listdir('zfile_processing/pdf_storing')
+    # previews_folder = 'zfile_processing/previews'
+    # if not os.path.exists(previews_folder):
+    #     os.makedirs(previews_folder)
+    #
+    # for pdf in pdfs:
+    #     preview_path = os.path.join(previews_folder, pdf + '.png')
+    #     if not os.path.exists(preview_path):
+    #         images = convert_from_path(os.path.join('static/pdfs', pdf), size=(200, 282), single_file=True)
+    #         images[0].save(preview_path, 'PNG')
 
     if current_user:
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
@@ -629,6 +629,7 @@ def question_paper_upload():
                 print("\n\n")
 
         pdf_name = ''
+        pdf_uuid = ''
         if 'file' in request.files:
             file1 = request.files['file']
             extension = ''
@@ -664,7 +665,7 @@ def question_paper_upload():
                 if i:
                     questions_list.append(i)
 
-        question_paper_uuid = str(uuid.uuid4())
+        question_paper_uuid = pdf_uuid
         if 'extract-text' in request.form:
             print(f'2-------------------{pdf_name}----------------------------------')
             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
@@ -687,14 +688,13 @@ def question_paper_upload():
                         db.session.add(new_question)
                         db.session.commit()
             return redirect(url_for('teacher_dashboard', questions_list=questions_list, extracted_text=extracted_text))
-                # message = 'Questions Uploaded Successfully'
-                # flash(message, 'success')
+            # message = 'Questions Uploaded Successfully'
+            # flash(message, 'success')
 
-                # message = 'No questions found to upload'
-                # flash(message, 'error')
+            # message = 'No questions found to upload'
+            # flash(message, 'error')
     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
                            extracted_text=extracted_text)
-
 
 
 @app.route('/thumbnails', methods=['GET', 'POST'])
@@ -733,7 +733,13 @@ def student_generate_paper():
     all_question_papers = db.session.query(question_papers).all()
     for qp in all_question_papers:
         search_dict[qp.QP_ID + ".pdf"] = qp.QP_NAME
-    return render_template('student/studentgeneratepaper.html',search_dict=search_dict)
+    return render_template('student/studentgeneratepaper.html', search_dict=search_dict)
+
+
+@app.route('/qp-display', methods=['GET'])
+def display_qp():
+    return send_from_directory('zfile_processing/teacher_question_storing', request.args.get('pdf'),
+                               as_attachment=False)
 
 
 """
