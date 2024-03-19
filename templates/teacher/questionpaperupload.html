@@ -155,17 +155,6 @@
                     class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                 Separate Questions
             </button>
-
-<!--            <button type="submit" name="submit-questions" id="submit-question"-->
-<!--                    class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">-->
-<!--                Submit-->
-<!--            </button>-->
-
-
-<!--            <input type="submit" id="submit-question" name="submit-question"-->
-<!--                    class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium   rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">-->
-
-
         </form>
         <div>
             <form method="POST">
@@ -174,15 +163,31 @@
                 <div class="container1">
                     <input name="{{ question }}" class="question" value="{{ question }}">
                     <div class="buttons">
+                        <select name="{{ question }}-marks">
+                            <option selected disabled>Select Marks</option>
+                            <option value="1m">1m</option>
+                            <option value="3m">3m</option>
+                            <option value="5m">5m</option>
+                            <option value="7m">7m</option>
+                            <option value="10m">10m</option>
+                        </select>
+
                         <select name="{{ question }}-difficulty">
                             <option selected disabled>Select Difficulty</option>
                             <option value="easy">Easy</option>
                             <option value="medium">Medium</option>
                             <option value="hard">Hard</option>
                         </select>
-                        <!-- <button>Button 1</button> -->
-                        <!-- <button>Button 2</button> -->
-                        <!-- <button>Button 3</button> -->
+
+                        <select name="{{ question }}-objective">
+                            <option selected disabled>RBT Levels</option>
+                            <option value="remembering">Remembering</option>
+                            <option value="understanding">Understanding</option>
+                            <option value="applying">Applying</option>
+                            <option value="analyzing">Analyzing</option>
+                            <option value="evaluating">Evaluating</option>
+                            <option value="creating">Creating</option>
+                        </select>
                         <button class="remove-button">Remove</button>
                     </div>
                 </div>
@@ -194,28 +199,6 @@
                    </div>
     </div>
 </main>
-
-
-
-
-
-<!--<script>-->
-<!--    document.getElementById("submit-question").addEventListener("click", function(event) {-->
-<!--        let questions = [];-->
-<!--        let inputBox = document.querySelector("textarea[name='inputBox']");-->
-<!--        let lines = inputBox.value.split("\n");-->
-
-<!--        for (let line of lines) {-->
-<!--            if (line.trim() !== "") {-->
-<!--                questions.push(line.trim());-->
-<!--            }-->
-<!--        }-->
-
-<!--        let questionsInput = document.getElementById("questions");-->
-<!--        questionsInput.value = JSON.stringify(questions);-->
-<!--    });-->
-<!--</script>-->
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -113,77 +113,15 @@
 <section id="section2" class="w-2/3 mx-auto py-20">
     <!-- PDF Catalogue -->
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl text-white font-bold text-center mb-8">Question Paper Catalogue</h1>
-        <div class="grid grid-cols-5 gap-4">
-            <div class="bg-white rounded-lg shadow">
-                <div class="p-4">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                        <!-- Placeholder for PDF thumbnail -->
-                        <img src="../static/previews/1.pdf.png" alt="PDF Thumbnail" class="max-w-full max-h-full rounded">
-                        <!--                        <span class="text-gray-500">PDF Thumbnail</span>-->
-                    </div>
-                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                    <p class="text-sm text-gray-600">Description of the PDF.</p>
-                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                </div>
-            </div>
+        <h1 class="text-2xl text-white font-bold text-center mb-8">PDF Catalogue</h1>
+        <div class="grid grid-cols-5 gap-4"> {{ all_qp_string|safe }}</div>
 
-            <div class="bg-white rounded-lg shadow">
-                <div class="p-4">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                        <!-- Placeholder for PDF thumbnail -->
-                        <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
-                    </div>
-                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                    <p class="text-sm text-gray-600">Description of the PDF.</p>
-                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow">
-                <div class="p-4">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                        <!-- Placeholder for PDF thumbnail -->
-                        <span class="text-gray-500">PDF Thumbnail</span>
-                    </div>
-                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                    <p class="text-sm text-gray-600">Description of the PDF.</p>
-                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow">
-                <div class="p-4">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                        <!-- Placeholder for PDF thumbnail -->
-                        <span class="text-gray-500">PDF Thumbnail</span>
-                    </div>
-                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                    <p class="text-sm text-gray-600">Description of the PDF.</p>
-                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow">
-                <div class="p-4">
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                        <!-- Placeholder for PDF thumbnail -->
-                        <span class="text-gray-500">PDF Thumbnail</span>
-                    </div>
-                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                    <p class="text-sm text-gray-600">Description of the PDF.</p>
-                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                </div>
-            </div>
-            <!-- Repeat the block above for each PDF item -->
-        </div>
     </div>
     <!-- Notes Catalogue -->
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-2xl text-white font-bold text-center mb-8">Notes Catalogue</h1>
-       <div class="grid grid-cols-5 gap-4"> {{ all_notes_string|safe }}</div>
+        <div class="grid grid-cols-5 gap-4"> {{ all_notes_string|safe }}</div>
 
-    </div>
     </div>
 
 
@@ -203,10 +141,44 @@
         }
     }
 </script>
+<!--<script>-->
+<!--    const button = document.getElementById('noteButton');-->
+<!--        button.addEventListener('click', function () {-->
+<!--    window.open('/notes-display?pdf=' + uuid, '_blank');-->
+<!--    });-->
+<!--</script>-->
+
 <script>
-    const button = document.getElementById('noteButton');
-        button.addEventListener('click', function () {
-    window.open('/notes-display?pdf=' + uuid, '_blank');
+    document.addEventListener('DOMContentLoaded', function () {
+        const noteButton = document.querySelectorAll('.noteButton');
+
+        noteButton.forEach(button => {
+            button.addEventListener('click', function () {
+                let urlPath;
+                if (this.getAttribute('data-note-id')) {
+                    const noteId = this.getAttribute('data-note-id');
+                    urlPath = '/notes-display?pdf=' + noteId + '.pdf';
+                }
+
+                if (urlPath) {
+                    window.open(urlPath, '_blank');
+                }
+            });
+        });
+
+        const qpButton = document.querySelectorAll('.qpButton');
+        qpButton.forEach(button => {
+            button.addEventListener('click', function () {
+                let urlPath;
+                if (this.getAttribute('data-qp-id')) {
+                    const qpId = this.getAttribute('data-qp-id');
+                    urlPath = '/qp-display?pdf=' + qpId + '.pdf';
+                }
+                if (urlPath) {
+                    window.open(urlPath, '_blank');
+                }
+            });
+        });
     });
 </script>
 

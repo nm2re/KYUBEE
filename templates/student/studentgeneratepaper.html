@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css"  rel="stylesheet" />
 
 </head>
 
@@ -41,12 +42,12 @@
                     </li>
 
                     <li>
-                        <a href="#"
+                        <a href="{{ url_for('student_generate_paper') }}"
                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Generate Paper</a>
                     </li>
 
                     <li>
-                        <a href="#"
+                        <a href="{{ url_for('student_notes_search') }}"
                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Search Notes</a>
                     </li>
 
@@ -93,7 +94,7 @@
 
 <main class="h-[100vh] w-full bg-cover bg-center bg-no-repeat" >
     <div class="flex flex-col justify-start items-center pt-40 gap-5">
-        <h1 class="text-5xl font-medium text-white mt-22">Search Questions Below</h1>
+        <h1 class="text-5xl font-medium text-white mt-22">Search Question Papers Below</h1>
         <!--        <h1 class="text-7xl font-medium text-white mt-12"></h1>-->
     </div>
 
@@ -117,10 +118,6 @@
     </form>
 
 </main>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
-
 
 <script>
     const searchInput = document.getElementById('default-search');
@@ -158,14 +155,25 @@
           console.log(note_name);
           const li = document.createElement('li');
             const button = document.createElement('button');
+            const checkbox = document.createElement('input'); // Create an <input> element
+            checkbox.type = 'checkbox'; // Set the type of the input to 'checkbox'
+
+            checkbox.onclick = function() {
+                this.checked = !this.checked;
+            };
+
+            checkbox.classList.add('w-4', 'h-4', 'text-blue-600', 'bg-gray-100', 'border-gray-300', 'rounded', 'focus:ring-blue-500', 'dark:focus:ring-blue-600', 'dark:ring-offset-gray-800', 'focus:ring-2', 'dark:bg-gray-700', 'dark:border-gray-600');
+
             button.onclick = function () {
                 window.open('/qp-display?pdf=' + uuid, '_blank')
             };
             button.textContent = note_name;
-            button.classList.add('bg-gray-700', 'w-full' ,'p-2', 'border', 'rounded-md', 'mr-2', 'mb-2', 'focus:outline-none', 'focus:border-blue-500', 'transition', 'duration-150');
+            button.classList.add('text-white','bg-gray-700', 'w-full' ,'p-2', 'border', 'rounded-md', 'mr-2', 'mb-2', 'focus:outline-none', 'focus:border-blue-500', 'transition', 'duration-150');
+
+
+            document.getElementById('search-results').appendChild(checkbox);
             button.addEventListener('click', () => {
                 alert(`You clicked on ${result}`);
-                // You can perform additional actions when a button is clicked
             });
             li.appendChild(button);
             ul.appendChild(li);
@@ -175,8 +183,10 @@
         searchResultsContainer.appendChild(ul);
     }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 </body>
 </html>
-<div class="flex items-center mb-4">
-    <input id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-</div>
+<!--<div class="flex items-center mb-4">-->
+<!--    <input id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">-->
+<!--</div>-->
+<input id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">

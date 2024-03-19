@@ -84,8 +84,6 @@ class teacher_login(db.Model, UserMixin):
     def get_id(self):
         return str(self.ID)
 
-    # teacher_rel = relationship('teachers', backref='teacher_login')
-
 
 class students(db.Model, UserMixin):
     STUDENT_ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
@@ -138,32 +136,37 @@ class department(db.Model, UserMixin):
 class notes(db.Model, UserMixin):
     NOTE_ID = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True)
     NOTE_NAME = db.Column(db.String(90), nullable=False)
-    TEACHER_ID = db.Column(db.Integer, db.ForeignKey('teachers.TEACHER_ID'))
+    TEACHER_ID = db.Column(db.String(36), db.ForeignKey('teachers.TEACHER_ID'))
     DEPARTMENT_ID = db.Column(db.String(36), db.ForeignKey('department.DEPARTMENT_ID'))
     DATE_ADDED = db.Column(db.Date, nullable=False)
 
 
+class contact(db.Model, UserMixin):
+    ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    NAME = db.Column(db.String(36),nullable=False)
+    EMAIL = db.Column(db.String(80), nullable=False, unique=True)
+    SUBJECT = db.Column(db.String(80), nullable=False)
+    MESSAGE = db.Column(db.String(80), nullable=False)
+
+
 @app.route('/insert_departments')
 def insert_departments():
-    # Inserting example department
     department_names = ["Computer Science", "Electrical Engineering", "Mathematics", "Biology", "History"]
-    # Create and add 5 departments with specific names
     for i in range(5):
         new_department = department(department_name=department_names[i])
         db.session.add(new_department)
-        # Commit the changes to the database
     db.session.commit()
     return 'Example departments inserted successfully!'
 
 
-@app.route('/createdatabase')
+@app.route('/create-database')
 def create_database():
     with app.app_context():
         db.create_all()
     return 'Database Created'
 
 
-@app.route('/deletedatabase')
+@app.route('/delete-database')
 def delete_database():
     with app.app_context():
         db.drop_all()
@@ -177,8 +180,6 @@ class RegistrationForm(FlaskForm):
                              render_kw={"placeholder": "Password"})
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')],
                                      render_kw={"placeholder": "Confirm Password"})
-
-    # options = RadioField('Options',choices=[('option1','option2')])
 
     def validate_email(self, email):
         existing_student_email = student_login.query.filter_by(
@@ -219,7 +220,18 @@ def homepage():
 
 
 @app.route('/contact', methods=['GET', 'POST'])
-def contact():
+def contact_page():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    subject = request.form.get('subject')
+    message = request.form.get('message')
+    print(name, email, subject, message)
+
+    if name and email and subject and message:
+        person = contact(NAME=name, EMAIL=email,MESSAGE=message, SUBJECT=subject)
+        db.session.add(person)
+        db.session.commit()
+        return redirect(url_for('homepage'))
     return render_template('home/contact.html')
 
 
@@ -236,25 +248,6 @@ def elements():
 @app.route('/studentdashboard', methods=['GET', 'POST'])
 @login_required
 def student_dashboard():
-    # if current_user.type == 0:
-    #     logged_user = student_login.query.get(user_id)
-    # elif current_user.type == 1:
-    #     logged_user = teacher_login.query.get(user_id)
-
-    # print(current_user.EMAIL)
-    # print(current_user.type)
-
-    # pdfs = os.listdir('zfile_processing/pdf_storing')
-    # previews_folder = 'zfile_processing/previews'
-    # if not os.path.exists(previews_folder):
-    #     os.makedirs(previews_folder)
-    #
-    # for pdf in pdfs:
-    #     preview_path = os.path.join(previews_folder, pdf + '.png')
-    #     if not os.path.exists(preview_path):
-    #         images = convert_from_path(os.path.join('static/pdfs', pdf), size=(200, 282), single_file=True)
-    #         images[0].save(preview_path, 'PNG')
-
     if current_user:
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
@@ -274,8 +267,8 @@ def teacher_dashboard():
     else:
         flash('User not found', 'error')
 
-    all_notes_string = '''
-    '''
+    all_notes_string = ''''''
+    all_qp_string = ''''''
     all_notes = db.session.query(notes).all()
     for note in all_notes:
         all_notes_string += f'''
@@ -287,20 +280,29 @@ def teacher_dashboard():
                     </span>
                 </div>
                 <h3 class="mt-2 text-lg font-medium">{note.NOTE_NAME}</h3> 
-                <button id="noteButton" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 
-                transition-colors">View Note</button> 
+                <button class="noteButton inline-block 
+                mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors" data-note-id="{note.NOTE_ID}">View Note</button>
+            </div> 
+        </div>
+        '''
+    all_question_papers = db.session.query(question_papers).all()
+    print(all_question_papers)
+    for qp in all_question_papers:
+        all_qp_string += f'''
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-4">
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                    <span class="text-gray-500">
+                    <img src= {url_for('thumbnails', file=qp.QP_ID + '.png', type='question')} alt="Question Paper Preview" class="w-48 h-48">
+                    </span>
+                </div>
+                <h3 class="mt-2 text-lg font-medium">{qp.QP_NAME}</h3> 
+                <button class="qpButton inline-block 
+                mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors" data-qp-id="{qp.QP_ID}">View Question Paper</button>
             </div> 
         </div>'''
-
     return render_template('teacher/teacherdashboard.html', current_user=current_user,
-                           all_notes_string=all_notes_string,
-                           )
-
-
-@app.route('/notes-display', methods=['GET'])
-def display_note():
-    # return render_template('notes_preview.html',pdf = request.args.get('pdf'))
-    return send_from_directory('zfile_processing/teacher_pdf_storing', request.args.get('pdf'), as_attachment=False)
+                           all_notes_string=all_notes_string, all_qp_string=all_qp_string)
 
 
 @app.route('/student-profile-page', methods=['GET', 'POST'])
@@ -319,9 +321,7 @@ def student_account():
     new_first_name = request.form.get('first_name')
     new_last_name = request.form.get('last_name')
     new_phone_number = request.form.get('phone_number')
-    print(new_first_name)
-    print(new_last_name)
-    print(request.form)
+
     if new_email or new_first_name or new_last_name or new_phone_number:
         check_email = db.session.query(students).filter_by(
             STUDENT_EMAIL=new_email).first()  # if there exists an email similar to new email
@@ -428,6 +428,7 @@ def teacher_profile(login_uuid):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    message = None
     if form.validate_on_submit():
         student_user = student_login.query.filter_by(EMAIL=form.email.data).first()
         teacher_user = teacher_login.query.filter_by(EMAIL=form.email.data).first()
@@ -443,7 +444,8 @@ def login():
                 user_type = 1
                 return redirect(url_for('teacher_dashboard'))
         else:
-            flash('Login Unsuccessful. Please check email and password', 'error')
+            message = "Login Unsuccessful. Please check email and password"
+            flash(message, 'error')
     return render_template('login_register/login.html', form=form)
 
 
@@ -493,17 +495,6 @@ def register():
 # Storing pdfs
 @app.route('/pdfupload', methods=['GET', 'POST'])
 def pdf_upload():
-    # if current_user.type == 0:  # Student
-    #     student_storage = 'zfile_processing/pdf_storing'
-    #     pdf_file = request.files['file_input']
-    #     if pdf_file and pdf_file.filename.endswith('.pdf'):
-    #         pdf_file.filename = str(uuid.uuid4()) + ".pdf"
-    #         student_pdf_file = pdf_file.filename
-    #         pdf_path = os.path.join(student_storage, student_pdf_file)
-    #         pdf_file.save(pdf_path)
-    #
-    #     return redirect(url_for('student_dashboard'))
-
     if current_user.type == 1:  # Teacher
         teacher_storage = 'zfile_processing/teacher_pdf_storing'
         preview_storage = 'zfile_processing/previews'
@@ -537,32 +528,6 @@ def pdf_upload():
 '''
 
 
-# @app.route('/question-upload', methods=['GET', 'POST'])
-# def question_upload():
-#     teacher_question_storage = 'zfile_processing/teacher_question_storing'
-#     question_preview_storage = 'zfile_processing/question_previews'
-#     pdf_file = request.files['file_input']
-#     if pdf_file and pdf_file.filename.endswith('.pdf'):
-#         pdf_uuid = str(uuid.uuid4())
-#         pdf_name = request.form.get('question-name')
-#         pdf_file.filename = pdf_uuid + ".pdf"
-#         teacher_pdf_file = pdf_file.filename
-#         pdf_path = os.path.join(teacher_question_storage, teacher_pdf_file)
-#         preview_path = os.path.join(question_preview_storage, pdf_uuid) + ".png"
-#         pdf_file.save(pdf_path)
-#         images = convert_from_path(pdf_path, size=(200, 282), single_file=True)
-#         images[0].save(preview_path, 'PNG')
-#
-#         new_question_paper = question_papers(NOTE_ID=pdf_uuid, NOTE_NAME=pdf_name, TEACHER_ID=current_user.ID,
-#                          DEPARTMENT_ID=current_user.department_id, DATE_ADDED=datetime.now())
-#         db.session.add(new_note)
-#         db.session.commit()
-#         message = "Notes Uploaded Successfully!"
-#         flash(message, 'success')
-#
-#     return redirect(url_for('teacher_dashboard'))
-
-
 @app.route('/upload-notes', methods=['GET', 'POST'])
 def upload_notes():
     return render_template('teacher/notesuploadsection.html')
@@ -584,6 +549,12 @@ def notes_display():
             images[0].save(preview_path, 'PNG')
 
     return render_template('pdf.html', pdfs=pdfs)
+
+
+@app.route('/notes-display', methods=['GET'])
+@login_required
+def display_note():
+    return send_from_directory('zfile_processing/teacher_pdf_storing', request.args.get('pdf'), as_attachment=False)
 
 
 @app.route('/zfile_processing/<path:fileName>')
@@ -611,7 +582,6 @@ def read_pdf(file):
 
 
 '''
-Fix the issue with the questions not being added to the database
 '''
 questions_list = []
 
@@ -681,18 +651,15 @@ def question_paper_upload():
                 for question in questions_list:
                     # Check if the question is not an empty string
                     if question:
+                        marks = request.form.get(f"{question}-marks")
                         difficulty = request.form.get(f"{question}-difficulty")
+                        objective = request.form.get(f"{question}-objective")
                         new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question,
-                                                 Q_TAGS=[difficulty, 'tag2'],
+                                                 Q_TAGS=[marks, difficulty, objective],
                                                  QP_ID=question_paper_uuid)
                         db.session.add(new_question)
                         db.session.commit()
             return redirect(url_for('teacher_dashboard', questions_list=questions_list, extracted_text=extracted_text))
-            # message = 'Questions Uploaded Successfully'
-            # flash(message, 'success')
-
-            # message = 'No questions found to upload'
-            # flash(message, 'error')
     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
                            extracted_text=extracted_text)
 
@@ -703,7 +670,7 @@ def thumbnails():
     if request.args.get('type') == 'question':
         return send_from_directory('zfile_processing/question_previews/', request.args.get('file'))
     elif request.args.get('type') == 'note':
-        return (send_from_directory('zfile_processing/previews/', request.args.get('file')))
+        return send_from_directory('zfile_processing/previews/', request.args.get('file'))
 
 
 @app.route('/pdf-raw', methods=['GET', 'POST'])
@@ -719,8 +686,8 @@ def pdf_raw():
 @login_required
 def student_notes_search():
     search_dict = {}
-    student_department = db.session.query(students).filter_by(STUDENT_ID=current_user.ID).first().DEPARTMENT_ID
-    all_notes = db.session.query(notes).filter_by(DEPARTMENT_ID=student_department).all()
+    # student_department = db.session.query(students).filter_by(STUDENT_ID=current_user.ID).first().DEPARTMENT_ID
+    all_notes = db.session.query(notes).all()
     for note in all_notes:
         search_dict[note.NOTE_ID + ".pdf"] = note.NOTE_NAME
     return render_template('student/studentsearch.html', search_dict=search_dict)
@@ -738,16 +705,13 @@ def student_generate_paper():
 
 @app.route('/qp-display', methods=['GET'])
 def display_qp():
-    return send_from_directory('zfile_processing/teacher_question_storing', request.args.get('pdf'),
-                               as_attachment=False)
+    return send_from_directory('zfile_processing/teacher_question_storing', request.args.get('pdf'),as_attachment=False)
 
 
 """
 Completed adding questions into database
 - Cleaning data
 - Cleaning Code
-- Add dashboard (?)
-- Fetch Question Paper = Student
 - Search Teachers = Student
 - Fetch Notes = Student
 - Backref for questions
