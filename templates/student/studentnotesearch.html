@@ -90,7 +90,6 @@
     {% endwith %}
 </div>
 
-
 <main class="h-[100vh] w-full bg-cover bg-center bg-no-repeat" >
     <div class="flex flex-col justify-start items-center pt-40 gap-5">
         <h1 class="text-5xl font-medium text-white mt-22">Search Notes Below</h1>
@@ -122,17 +121,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 
 
+
 <script>
+    const data = {{ search_dict | tojson}};
+
     const searchInput = document.getElementById('default-search');
     const searchResultsContainer = document.getElementById('search-results');
-
-    // Sample data for demonstration purposes
-    const data = {{ search_dict | tojson }};
 
     // Event listener for input changes
     searchInput.addEventListener('input', function () {
         const searchTerm = searchInput.value.toLowerCase();
-        const filteredResults = Object.values(data).filter(item => item.toLowerCase().includes(searchTerm));
+        const filteredResults = Object.entries(data).filter(([uuid, note_name]) => note_name.toLowerCase().includes(searchTerm));
         displayResults(filteredResults);
     });
 
@@ -149,30 +148,25 @@
             return;
         }
 
-        const ul = document.createElement('ul');
-        ul.classList.add('list-disc', 'list-inside');
+        results.forEach(([uuid, note_name]) => {
+            const div = document.createElement('div');
+            div.classList.add('relative', 'p-2', 'border', 'rounded-md', 'mb-2', 'bg-white');
 
-        const entries = Object.entries(data);
-        for (let [uuid,note_name] of entries) {
-          console.log(uuid);
-          console.log(note_name);
-          const li = document.createElement('li');
+            const title = document.createElement('p');
+            title.textContent = note_name;
+            title.classList.add('text-gray-700', 'mb-2');
+
             const button = document.createElement('button');
-            button.onclick = function () {
-                window.open('/notes-display?pdf=' + uuid, '_blank')
-            };
-            button.textContent = note_name;
-            button.classList.add('bg-gray-700', 'w-full' ,'p-2', 'border', 'rounded-md', 'mr-2', 'mb-2', 'focus:outline-none', 'focus:border-blue-500', 'transition', 'duration-150');
+            button.textContent = 'Open';
+            button.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outline-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
             button.addEventListener('click', () => {
-                alert(`You clicked on ${result}`);
-                // You can perform additional actions when a button is clicked
+                window.open('/qp-display?pdf=' + uuid, '_blank');
             });
-            li.appendChild(button);
-            ul.appendChild(li);
-        }
 
-
-        searchResultsContainer.appendChild(ul);
+            div.appendChild(title);
+            div.appendChild(button);
+            searchResultsContainer.appendChild(div);
+        });
     }
 </script>
 </body>

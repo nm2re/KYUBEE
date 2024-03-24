@@ -627,7 +627,6 @@ def question_paper_upload():
                     extracted_text = read_pdf(file1)
                 pdf_name = request.form.get('qp-name')
 
-            print(f'1-------------------{pdf_name}----------------------------------')
         if 'inputBox' in request.form:
             input_text = request.form.get('inputBox')
 
@@ -637,7 +636,6 @@ def question_paper_upload():
 
         question_paper_uuid = pdf_uuid
         if 'extract-text' in request.form:
-            print(f'2-------------------{pdf_name}----------------------------------')
             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
                                                  DATE_CREATED=datetime.now(), QP_NAME=pdf_name)
             db.session.add(new_question_paper)
@@ -690,7 +688,7 @@ def student_notes_search():
     all_notes = db.session.query(notes).all()
     for note in all_notes:
         search_dict[note.NOTE_ID + ".pdf"] = note.NOTE_NAME
-    return render_template('student/studentsearch.html', search_dict=search_dict)
+    return render_template('student/studentnotesearch.html', search_dict=search_dict)
 
 
 @app.route('/student-generate-paper', methods=['GET', 'POST'])
@@ -716,6 +714,7 @@ Completed adding questions into database
 - Fetch Notes = Student
 - Backref for questions
 """
+
 # main
 if __name__ == '__main__':
     app.run(debug=True)

@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="shortcut icon" href="/assets/favicon.ico">
-    <!--    <link rel="stylesheet" href="{{ url_for('static', filename='cataloguestyle.css') }}">   -->
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
 
     <script src="https://cdn.tailwindcss.com"></script>
-
 </head>
 
 <body class="bg-cover bg-center bg-no-repeat"
@@ -94,7 +92,6 @@
 </div>
 
 
-
 <main class="h-[100vh] w-full bg-cover bg-center bg-no-repeat" >
     <div class="flex flex-col justify-start items-center pt-40 gap-5">
         <h1 class="text-7xl font-medium text-white mt-22">WELCOME {{current_user.first_name + " " +
@@ -113,17 +110,6 @@
         <h1 class="text-2xl text-white font-bold text-center mb-8">PDF Catalogue</h1>
         <div class="grid grid-cols-5 gap-4">
             <!-- Repeat this block for each PDF item -->
-
-            <!--            {% for pdf in pdfs %}-->
-            <!--            <div class="pdf-item">-->
-            <!--                <a href="{{ url_for('static', filename='pdfs/' + pdf) }}" target="_blank">-->
-            <!--                    <div class="pdf-thumbnail">-->
-            <!--                        <img src="{{ url_for('static', filename='previews/' + pdf + '.png') }}" alt="PDF Thumbnail">-->
-            <!--                    </div>-->
-            <!--                    <div class="pdf-title">{{ pdf }}</div>-->
-            <!--                </a>-->
-            <!--            </div>-->
-            <!--            {% endfor %}-->
 
 
             <div class="bg-white rounded-lg shadow">
@@ -179,6 +165,54 @@
                 <div class="p-4">
                     <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
                         <!-- Placeholder for PDF thumbnail -->
+                        <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
+                        <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
+                    </div>
+                    <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
+                    <p class="text-sm text-gray-600">Description of the PDF.</p>
+                    <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-4">
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
+                        <!-- Placeholder for PDF thumbnail -->
                         <span class="text-gray-500">PDF Thumbnail</span>
                     </div>
                     <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
@@ -222,6 +256,7 @@
     </div>
 </section>
 
+<!-- Scroll Javascript -->
 <script>
     document.getElementById('scrollButton').addEventListener('click', function() {
       smoothScroll('#section2');
