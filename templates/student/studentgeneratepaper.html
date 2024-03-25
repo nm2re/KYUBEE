@@ -120,195 +120,22 @@
         <input type="submit" id="submit-papers" name="submit-papers"
                class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
         </div>
-
-
     </form>
 
     <section id="section2" class="w-2/3 mx-auto py-20">
         <!-- PDF Catalogue -->
         <div class="container mx-auto px-4 py-8">
             <h1 class="text-2xl text-white font-bold text-center mb-8">PDF Catalogue</h1>
-            <div class="grid grid-cols-5 gap-4">
-                <!-- Repeat this block for each PDF item -->
-
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <img src="../static/previews/1.pdf.png" alt="PDF Thumbnail" class="max-w-full max-h-full rounded">
-                            <!--                        <span class="text-gray-500">PDF Thumbnail</span>-->
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for pdf in pdfs %}
+                <div class="relative p-2 border rounded-md mb-2 bg-white">
+                    <p class="text-gray-700 mb-2">{{ pdf.note_name }}</p>
+                    <button class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onclick="window.open('/qp-display?pdf={{ pdf.uuid }}', '_blank')">Open</button>
                 </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <img src="{{ url_for('static', filename='previews/' + '.pdf' + '.png') }}" alt="PDF Thumbnail">
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-4">
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                            <!-- Placeholder for PDF thumbnail -->
-                            <span class="text-gray-500">PDF Thumbnail</span>
-                        </div>
-                        <h3 class="mt-2 text-lg font-medium">PDF Title 1</h3>
-                        <p class="text-sm text-gray-600">Description of the PDF.</p>
-                        <a href="#" class="inline-block mt-3 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">View PDF</a>
-                    </div>
-                </div>
-                <!-- Repeat the block above for each PDF item -->
-            </div>
+                {% endfor %}
         </div>
     </section>
 </main>
-
-<!--<script>-->
-<!--    document.addEventListener('DOMContentLoaded', function() {-->
-<!--    const searchInput = document.getElementById('default-search');-->
-<!--    const searchResultsContainer = document.getElementById('search-results');-->
-
-<!--    const data = {{ search_dict | tojson}};-->
-
-<!--    // Event listener for input changes-->
-<!--    searchInput.addEventListener('input', function () {-->
-<!--        const searchTerm = searchInput.value.toLowerCase();-->
-<!--        const filteredResults = Object.entries(data).filter(([uuid, note_name]) => note_name.toLowerCase().includes(searchTerm));-->
-<!--        displayResults(filteredResults);-->
-<!--    });-->
-
-<!--    // Function to display search results-->
-<!--    function displayResults(results) {-->
-<!--        searchResultsContainer.innerHTML = '';-->
-
-<!--        if (searchInput.value === '') {-->
-<!--            return;-->
-<!--        }-->
-
-<!--        if (results.length === 0) {-->
-<!--            searchResultsContainer.innerHTML = '<p class="text-gray-500">No results found.</p>';-->
-<!--            return;-->
-<!--        }-->
-
-<!--        results.forEach(([uuid, note_name]) => {-->
-<!--            const div = document.createElement('div');-->
-<!--            div.textContent = note_name;-->
-<!--            div.classList.add('text-white', 'bg-gray-700', 'w-full', 'p-2', 'border', 'rounded-md', 'mb-2', 'cursor-pointer', 'transition', 'duration-150', 'hover:bg-gray-600');-->
-<!--            div.addEventListener('click', () => {-->
-<!--                window.open('/qp-display?pdf=' + uuid, '_blank');-->
-<!--            });-->
-<!--            searchResultsContainer.appendChild(div);-->
-<!--        });-->
-<!--    }-->
-<!--});-->
-<!--</script>-->
 
 <script>
     const data = {{ search_dict | tojson}};
@@ -325,37 +152,53 @@
 
     // Function to display search results
     function displayResults(results) {
-        searchResultsContainer.innerHTML = '';
+    searchResultsContainer.innerHTML = '';
 
-        if (searchInput.value === '') {
-            return;
-        }
-
-        if (results.length === 0) {
-            searchResultsContainer.innerHTML = '<p class="text-gray-500">No results found.</p>';
-            return;
-        }
-
-        results.forEach(([uuid, note_name]) => {
-            const div = document.createElement('div');
-            div.classList.add('relative', 'p-2', 'border', 'rounded-md', 'mb-2', 'bg-white');
-
-            const title = document.createElement('p');
-            title.textContent = note_name;
-            title.classList.add('text-gray-700', 'mb-2');
-
-            const button = document.createElement('button');
-            button.textContent = 'Open';
-            button.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outline-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
-            button.addEventListener('click', () => {
-                window.open('/qp-display?pdf=' + uuid, '_blank');
-            });
-
-            div.appendChild(title);
-            div.appendChild(button);
-            searchResultsContainer.appendChild(div);
-        });
+    if (searchInput.value === '') {
+        return;
     }
+
+    if (results.length === 0) {
+        searchResultsContainer.innerHTML = '<p class="text-gray-500">No results found.</p>';
+        return;
+    }
+
+    results.forEach(([uuid, note_name]) => {
+        const div = document.createElement('div');
+        div.classList.add('relative', 'p-2', 'border', 'rounded-md', 'mb-2', 'bg-white');
+
+        const title = document.createElement('p');
+        title.textContent = note_name;
+        title.classList.add('text-gray-700', 'mb-2');
+
+        // Open button
+        const openButton = document.createElement('button');
+        openButton.textContent = 'Open';
+        openButton.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outline-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
+        openButton.addEventListener('click', () => {
+            window.open('/qp-display?pdf=' + uuid, '_blank');
+        });
+
+        // Pin button
+        const pinButton = document.createElement('button');
+        pinButton.textContent = 'Pin';
+        pinButton.classList.add('text-white', 'absolute', 'right-20', 'bottom-2.5', 'bg-green-700', 'hover:bg-green-800', 'focus:ring-green-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-green-600', 'dark:hover:bg-green-700');
+        pinButton.addEventListener('click', () => {
+            // Toggle the pinned state on click
+            const isPinned = div.getAttribute('data-pinned') === '1';
+            div.setAttribute('data-pinned', isPinned ? '0' : '1');
+            // Optionally, change the button text to reflect the state
+            pinButton.textContent = isPinned ? 'Pin' : 'Unpin';
+            console.log('Pinned:', uuid, !isPinned); // Log the new state
+        });
+
+
+        div.appendChild(title);
+        div.appendChild(openButton);
+        div.appendChild(pinButton); // Append the pin button next to the open button
+        searchResultsContainer.appendChild(div);
+    });
+}
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>

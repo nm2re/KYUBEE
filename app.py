@@ -253,6 +253,8 @@ def student_dashboard():
     else:
         flash('User not found', 'error')
 
+
+
     return render_template('student/studentdashboard.html', current_user=current_user)
 
 
@@ -680,7 +682,7 @@ def pdf_raw():
         return send_from_directory('zfile_processing/teacher_pdf_storing/', request.args.get('file'))
 
 
-@app.route('/notes-search', methods=['GET', 'POST'])
+@app.route('/student-notes-search', methods=['GET', 'POST'])
 @login_required
 def student_notes_search():
     search_dict = {}
@@ -688,6 +690,8 @@ def student_notes_search():
     all_notes = db.session.query(notes).all()
     for note in all_notes:
         search_dict[note.NOTE_ID + ".pdf"] = note.NOTE_NAME
+
+
     return render_template('student/studentnotesearch.html', search_dict=search_dict)
 
 
@@ -698,6 +702,11 @@ def student_generate_paper():
     all_question_papers = db.session.query(question_papers).all()
     for qp in all_question_papers:
         search_dict[qp.QP_ID + ".pdf"] = qp.QP_NAME
+
+    pinned = request.args.get('isPinned')
+    print(f"{pinned}pinned status")
+    # if pinned:
+    #     redirect(url_for('student_dashboard'))
     return render_template('student/studentgeneratepaper.html', search_dict=search_dict)
 
 
