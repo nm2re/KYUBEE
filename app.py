@@ -804,32 +804,6 @@ def paper_generation():
     return render_template('student/studentgeneratepaper.html',search_dict={}, fetched_questions=fetched_questions)
 
 
-"""
-Completed adding questions into database
-- Cleaning data
-- Cleaning Code
-- Search Teachers = Student
-- Fetch Notes = Student
-- Backref for questions
-"""
-
 # main
 if __name__ == '__main__':
     app.run(debug=True)
-
-#
-# <!--        results.forEach(result => {-->
-# <!--            const li = document.createElement('li');-->
-# <!--            const button = document.createElement('button');-->
-# <!--            button.onclick = function () {-->
-# <!--                window.open('/notes-display?pdf=' + result, '_blank'-->
-# <!--            };-->
-# <!--            button.textContent = data[result];-->
-# <!--            button.classList.add('p-2', 'border', 'rounded-md', 'mr-2', 'mb-2', 'focus:outline-none', 'focus:border-blue-500', 'transition', 'duration-150');-->
-# <!--            button.addEventListener('click', () => {-->
-# <!--                alert(`You clicked on ${result}`);-->
-# <!--                // You can perform additional actions when a button is clicked-->
-# <!--            });-->
-# <!--            li.appendChild(button);-->
-# <!--            ul.appendChild(li);-->
-# <!--        });-->

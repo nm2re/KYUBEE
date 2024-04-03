@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Teacher Dashboard</title>
+    <title>Search & Generate</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="shortcut icon" href="/assets/favicon.ico">
@@ -170,17 +170,11 @@
 
 
             <textarea name="fetched-questions-area" rows="10" cols="100" class="resize-none w-full p-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold" placeholder="Enter your questions here...">
-                {%for q in fetched_questions %}{{ q.details }}
-                {%endfor%}
+                {%for q in fetched_questions %}{{q.details}}{%endfor%}
             </textarea>
 
             <input type="submit" name="make-pdf" value="Make PDF" class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
 
-
-            {% else %}
-                <p class="text-2xl lg:text-5xl font-bold text-gray-800 dark:text-white mt-5 mb-3">
-                    No questions selected
-                </p>
             {% endif %}
 
         </section>
