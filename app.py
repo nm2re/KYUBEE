@@ -143,10 +143,29 @@ class notes(db.Model, UserMixin):
 
 class contact(db.Model, UserMixin):
     ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    NAME = db.Column(db.String(36),nullable=False)
+    NAME = db.Column(db.String(36), nullable=False)
     EMAIL = db.Column(db.String(80), nullable=False, unique=True)
     SUBJECT = db.Column(db.String(80), nullable=False)
     MESSAGE = db.Column(db.String(80), nullable=False)
+
+
+# -----------------------------
+
+
+class QuestionPaper:
+    def __init__(self):
+        self.id = ''
+        self.name = ''
+        self.teacher_id = ''
+        self.id = ''
+        self.questions = []
+
+
+class Questions:
+    def __init__(self):
+        self.id = ''
+        self.tags = []
+        self.details = ''
 
 
 @app.route('/insert_departments')
@@ -228,7 +247,7 @@ def contact_page():
     print(name, email, subject, message)
 
     if name and email and subject and message:
-        person = contact(NAME=name, EMAIL=email,MESSAGE=message, SUBJECT=subject)
+        person = contact(NAME=name, EMAIL=email, MESSAGE=message, SUBJECT=subject)
         db.session.add(person)
         db.session.commit()
         return redirect(url_for('homepage'))
@@ -252,8 +271,6 @@ def student_dashboard():
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
     else:
         flash('User not found', 'error')
-
-
 
     return render_template('student/studentdashboard.html', current_user=current_user)
 
@@ -585,11 +602,13 @@ def read_pdf(file):
 
 '''
 '''
+
 questions_list = []
 
 
 @app.route('/question-paper-upload', methods=['GET', 'POST'])
 def question_paper_upload():
+    question_paper_uuid = ''
     extracted_text = ''
     if request.method == 'POST':
         print("HERE HERE HERE")
@@ -629,39 +648,44 @@ def question_paper_upload():
                     extracted_text = read_pdf(file1)
                 pdf_name = request.form.get('qp-name')
 
-        if 'inputBox' in request.form:
-            input_text = request.form.get('inputBox')
-
-            for i in input_text.split('\r\n'):
-                if i:
-                    questions_list.append(i)
-
-        question_paper_uuid = pdf_uuid
         if 'extract-text' in request.form:
+            question_paper_uuid = pdf_uuid
+            print("this is executed")
             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
                                                  DATE_CREATED=datetime.now(), QP_NAME=pdf_name)
             db.session.add(new_question_paper)
             db.session.commit()
 
+        if 'inputBox' in request.form:
+            input_text = request.form.get('inputBox')
+            question_paper_uuid = request.form.get('question-paper-id')
+            for i in input_text.split('\r\n'):
+                if i:
+                    questions_list.append(i)
+            print(input_text)
+            print(123, request.form.get('question-paper-id'))
+
         # ---------------------------------Submit Questions---------------------------------
 
         if 'submit-question' in request.form:
+            question_paper_uuid = request.form.get('question-paper-id')
             # Check if questions_list is not empty
-            if questions_list:
-                for question in questions_list:
-                    # Check if the question is not an empty string
-                    if question:
-                        marks = request.form.get(f"{question}-marks")
-                        difficulty = request.form.get(f"{question}-difficulty")
-                        objective = request.form.get(f"{question}-objective")
-                        new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question,
-                                                 Q_TAGS=[marks, difficulty, objective],
-                                                 QP_ID=question_paper_uuid)
-                        db.session.add(new_question)
-                        db.session.commit()
+            while questions_list:
+                question = questions_list.pop(0)
+                # Check if the question is not an empty string
+                if question:
+                    marks = request.form.get(f"{question}-marks")
+                    difficulty = request.form.get(f"{question}-difficulty")
+                    objective = request.form.get(f"{question}-objective")
+                    print(f"ahhhhhhhhhhhhhhhhhhhhh {question_paper_uuid}")
+                    new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question,
+                                             Q_TAGS=[marks, difficulty, objective],
+                                             QP_ID=question_paper_uuid)
+                    db.session.add(new_question)
+                    db.session.commit()
             return redirect(url_for('teacher_dashboard', questions_list=questions_list, extracted_text=extracted_text))
     return render_template('teacher/questionpaperupload.html', questions_list=questions_list,
-                           extracted_text=extracted_text)
+                           extracted_text=extracted_text, question_paper_uuid=question_paper_uuid)
 
 
 @app.route('/thumbnails', methods=['GET', 'POST'])
@@ -691,28 +715,93 @@ def student_notes_search():
     for note in all_notes:
         search_dict[note.NOTE_ID + ".pdf"] = note.NOTE_NAME
 
-
     return render_template('student/studentnotesearch.html', search_dict=search_dict)
 
 
 @app.route('/student-generate-paper', methods=['GET', 'POST'])
 def student_generate_paper():
-    search_dict = {}
-    # student_department = db.session.query(students).filter_by(STUDENT_ID=current_user.ID).first().DEPARTMENT_ID
-    all_question_papers = db.session.query(question_papers).all()
-    for qp in all_question_papers:
-        search_dict[qp.QP_ID + ".pdf"] = qp.QP_NAME
+    if request.method == "GET":
+        search_dict = {}
+        # student_department = db.session.query(students).filter_by(STUDENT_ID=current_user.ID).first().DEPARTMENT_ID
+        all_question_papers = db.session.query(question_papers).all()
+        for qp in all_question_papers:
+            search_dict[qp.QP_ID] = qp.QP_NAME
 
-    pinned = request.args.get('isPinned')
-    print(f"{pinned}pinned status")
-    # if pinned:
-    #     redirect(url_for('student_dashboard'))
-    return render_template('student/studentgeneratepaper.html', search_dict=search_dict)
+        pinned = request.args.get('isPinned')
+        print(f"{pinned}pinned status")
+        return render_template('student/studentgeneratepaper.html', search_dict=search_dict, selected_papers=[])
 
+    if request.method == "POST":
+        selected_papers = []
+        for qp_uuid in request.form.getlist('selected'):
+            question_paper = QuestionPaper()
+            question_paper.id = qp_uuid
+            print(qp_uuid)
+            question_paper.name = db.session.query(question_papers).filter_by(QP_ID=qp_uuid).first().QP_NAME
+            print(question_paper.name)
+
+            # for question_object in db.session.query(questions).filter_by(QP_ID=qp_uuid).all():
+            #     question = Questions()
+            #     question.id = question_object.Q_ID
+            #     question.details = question_object.Q_DETAILS
+            #     question.tags = question_object.Q_TAGS
+            #     question_paper.questions.append(question)
+            selected_papers.append(question_paper)
+
+        print(selected_papers)
+        return render_template('student/studentgeneratepaper.html', selected_papers=selected_papers, search_dict={},fetched_questions=[], selected_paper_ids="--".join([_.id for _ in selected_papers]))
+
+
+# @app.route('/combined-papers')
 
 @app.route('/qp-display', methods=['GET'])
 def display_qp():
-    return send_from_directory('zfile_processing/teacher_question_storing', request.args.get('pdf'),as_attachment=False)
+    return send_from_directory('zfile_processing/teacher_question_storing', request.args.get('pdf'),
+                               as_attachment=False)
+
+
+@app.route('/paper-generation', methods=['GET', 'POST'])
+def paper_generation():
+    question_paper_ids = request.form.get("question-paper-id").split("--")
+    print(555,question_paper_ids)
+    fetched_questions = []
+    for qpid in question_paper_ids:
+        q_mark = request.form.get(f"{qpid}-marks")
+        q_difficulty = request.form.get(f"{qpid}-difficulty")
+        q_objective = request.form.get(f"{qpid}-objective")
+
+        print(q_mark)
+        print(q_difficulty)
+        print(q_objective)
+
+        query = db.session.query(questions).filter_by(QP_ID=qpid).all()
+        for question in query:
+            if q_mark:
+                if question.Q_TAGS[0] == q_mark:
+                    _question = Questions()
+                    _question.id = question.Q_ID
+                    _question.details = question.Q_DETAILS
+                    _question.tags = question.Q_TAGS
+                    fetched_questions.append(_question)
+                    continue
+            if q_difficulty:
+                if question.Q_TAGS[1] == q_difficulty:
+                    _question = Questions()
+                    _question.id = question.Q_ID
+                    _question.details = question.Q_DETAILS
+                    _question.tags = question.Q_TAGS
+                    fetched_questions.append(_question)
+                    continue
+            if q_objective:
+                if question.Q_TAGS[2] == q_objective:
+                    _question = Questions()
+                    _question.id = question.Q_ID
+                    _question.details = question.Q_DETAILS
+                    _question.tags = question.Q_TAGS
+                    fetched_questions.append(_question)
+                    continue
+    print(fetched_questions)
+    return render_template('student/studentgeneratepaper.html',search_dict={}, fetched_questions=fetched_questions)
 
 
 """

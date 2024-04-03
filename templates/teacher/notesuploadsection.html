@@ -7,6 +7,8 @@
     <link rel="shortcut icon" href="/assets/favicon.ico">
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/tailwind_min.css')}}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
 </head>
@@ -171,18 +173,17 @@
     }
 </script>
 <script>
-
     function preview(input) {
-    var preview_object = document.getElementById('preview-pdf');
-    preview_object.innerHTML = "";
+        var preview_object = document.getElementById('preview-pdf');
+        preview_object.innerHTML = "";
 
-    var file = input.files[0];
-     console.log((window.URL ? URL : webkitURL).createObjectURL(file));
-    var iframe = document.createElement('iframe');
-    iframe.src = (window.URL ? URL : webkitURL).createObjectURL(file);
-    iframe.style.height = '900px'   ;
-    iframe.style.width = '800px';
-    preview_object.appendChild(iframe);
+        var file = input.files[0];
+        console.log((window.URL ? URL : webkitURL).createObjectURL(file));
+        var iframe = document.createElement('iframe');
+        iframe.src = (window.URL ? URL : webkitURL).createObjectURL(file);
+        iframe.style.height = '900px';
+        iframe.style.width = '800px';
+        preview_object.appendChild(iframe);
     }
 </script>
 </body>

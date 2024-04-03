@@ -7,6 +7,9 @@
     <link rel="shortcut icon" href="/assets/favicon.ico">
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/tailwind_min.css')}}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
 
         body {
@@ -130,6 +133,7 @@
     <h1 class="text-2xl font-bold mb-4 text-white">Question Separator</h1>
 
     <form method="POST" enctype="multipart/form-data" class="mb-4">
+        <input type="hidden" name="question-paper-id" value="{{ question_paper_uuid }}">
         <input name="qp-name" id="qp-name" placeholder="Enter Question Paper Name"
                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-[300px] p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-8"
                autocomplete="off">
@@ -149,6 +153,7 @@
     </form>
     <div class="flex justify-between">
         <form method="POST" enctype="multipart/form-data" class="mb-4">
+            <input type="hidden" name="question-paper-id" value="{{ question_paper_uuid }}">
             <textarea name="inputBox" rows="27" cols="100" style="color: #dfd4d4; resize: both; margin-right:50px" placeholder="Enter your questions here...">{{ extracted_text }}</textarea>
             <br>
             <button
@@ -157,7 +162,9 @@
             </button>
         </form>
         <div>
+
             <form method="POST">
+                <input type="hidden" name="question-paper-id" value="{{ question_paper_uuid }}">
                 {% for question in questions_list %}
                 {% if question|trim != '' %}
                 <div class="container1">
@@ -193,8 +200,9 @@
                 </div>
                 {% endif %}
                 {% endfor %}
-            <input type="submit" id="submit-question" name="submit-question"
-                    class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium   rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+
+                <input type="submit" id="submit-question" name="submit-question"
+                        class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium   rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
             </form>
                    </div>
     </div>
@@ -202,21 +210,21 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const removeButtons = document.querySelectorAll('.remove-button');
-      removeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-          const container = button.closest('.container1');
-          container.remove();
+        const removeButtons = document.querySelectorAll('.remove-button');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const container = button.closest('.container1');
+                container.remove();
+            });
         });
-      });
 
-      const removeAllButton = document.getElementById('remove-all');
-      removeAllButton.addEventListener('click', function() {
-        const containers = document.querySelectorAll('.container1');
-        containers.forEach(container => {
-          container.remove();
+        const removeAllButton = document.getElementById('remove-all');
+        removeAllButton.addEventListener('click', function() {
+            const containers = document.querySelectorAll('.container1');
+            containers.forEach(container => {
+                container.remove();
+            });
         });
-      });
     });
 </script>
 <script src="https://cdn.tailwindcss.com"></script>

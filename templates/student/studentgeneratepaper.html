@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
     <script src="https://cdn.tailwindcss.com"></script>
-<!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css"  rel="stylesheet" />-->
 
 </head>
 
@@ -99,7 +98,7 @@
     </div>
 
 
-    <form>
+    <form action="{{url_for('student_generate_paper') }}" method="POST">
         <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
         <div class="relative max-w-4xl mx-auto mt-16"> <!-- Set max width and center the container -->
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"> <!-- Adjusted position of the search icon -->
@@ -117,24 +116,75 @@
         </div>
 
         <div class="flex justify-center align-center">
-        <input type="submit" id="submit-papers" name="submit-papers"
+        <input type="submit" id="submit-papers" name="submit-papers" value="Open Papers"
                class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
         </div>
     </form>
 
-<!--    <section id="section2" class="w-2/3 mx-auto py-20">-->
-<!--        &lt;!&ndash; PDF Catalogue &ndash;&gt;-->
-<!--        <div class="container mx-auto px-4 py-8">-->
-<!--            <h1 class="text-2xl text-white font-bold text-center mb-8">PDF Catalogue</h1>-->
-<!--            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">-->
-<!--                {% for pdf in pdfs %}-->
-<!--                <div class="relative p-2 border rounded-md mb-2 bg-white">-->
-<!--                    <p class="text-gray-700 mb-2">{{ pdf.note_name }}</p>-->
-<!--                    <button class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onclick="window.open('/qp-display?pdf={{ pdf.uuid }}', '_blank')">Open</button>-->
-<!--                </div>-->
-<!--                {% endfor %}-->
-<!--        </div>-->
-<!--    </section>-->
+    <form action="{{ url_for('paper_generation') }}" method="POST">
+        <input type="hidden" name="question-paper-id" value="{{ selected_paper_ids }}">
+        <section id="section-generate" class="w-2/3 mx-auto py-20">
+
+            {% if selected_papers|length != 0 %}
+                {% for selected_paper in selected_papers %}
+                    <p class="text-2xl lg:text-5xl font-bold text-gray-800 dark:text-white mt-5 mb-3">
+                        {{ selected_paper.name }}
+                    </p>
+
+
+                    <input type="hidden" name="selected-paper" value="{{selected_paper.id}}"/>
+                    <div class="container mx-auto px-4 py-8">
+                        <div class="buttons">
+                            <select name="{{ selected_paper.id }}-marks">
+                                <option selected disabled>Select Marks</option>
+                                <option value="1m">1m</option>
+                                <option value="3m">3m</option>
+                                <option value="5m">5m</option>
+                                <option value="7m">7m</option>
+                                <option value="10m">10m</option>
+                            </select>
+
+                            <select name="{{ selected_paper.id }}-difficulty">
+                                <option selected disabled>Select Difficulty</option>
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+
+                            <select name="{{ selected_paper.id }}-objective">
+                                <option selected disabled>RBT Levels</option>
+                                <option value="remembering">Remembering</option>
+                                <option value="understanding">Understanding</option>
+                                <option value="applying">Applying</option>
+                                <option value="analyzing">Analyzing</option>
+                                <option value="evaluating">Evaluating</option>
+                                <option value="creating">Creating</option>
+                            </select>
+                        </div>
+                    </div>
+                {% endfor %}
+                <button type="submit" class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Generate Paper</button>
+            {% endif %}
+
+            {% if fetched_questions|length !=0 %}
+
+
+            <textarea name="fetched-questions-area" rows="10" cols="100" class="resize-none w-full p-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold" placeholder="Enter your questions here...">
+                {%for q in fetched_questions %}{{ q.details }}
+                {%endfor%}
+            </textarea>
+
+            <input type="submit" name="make-pdf" value="Make PDF" class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+
+
+            {% else %}
+                <p class="text-2xl lg:text-5xl font-bold text-gray-800 dark:text-white mt-5 mb-3">
+                    No questions selected
+                </p>
+            {% endif %}
+
+        </section>
+    </form>
 </main>
 
 <script>
@@ -173,18 +223,21 @@
 
             // Checkbox
             const checkbox = document.createElement('input');
+            checkbox.name = 'selected';
             checkbox.type = 'checkbox';
             checkbox.id = `checkbox-${uuid}`;
+            checkbox.value = uuid;
             checkbox.classList.add('absolute', 'left-2.5', 'top-3.5');
-
 
             // Open button
             const openButton = document.createElement('button');
             openButton.textContent = 'Open';
-            openButton.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outline-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
+            openButton.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outlinex-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
             openButton.addEventListener('click', () => {
-                window.open('/qp-display?pdf=' + uuid, '_blank');
+                window.open('/qp-display?pdf=' + uuid + ".pdf", '_blank');
+                event.preventDefault();
             });
+
 
             // Pin button
             const pinButton = document.createElement('button');
@@ -207,8 +260,6 @@
         });
     }
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 </body>
 </html>
 
