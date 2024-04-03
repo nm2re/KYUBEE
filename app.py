@@ -4,6 +4,9 @@ from contextlib import suppress
 from datetime import datetime
 
 import PyPDF2
+import fitz.fitz
+import pytesseract
+from PIL import Image
 import docx
 import validators
 from flask import Flask, redirect, url_for, request, flash, send_from_directory, render_template
@@ -592,12 +595,22 @@ def read_docx(file):
 
 
 def read_pdf(file):
-    pdf_document = PyPDF2.PdfReader(file)
     text = ''
-    for page_num in range(len(pdf_document.pages)):
-        page = pdf_document.pages[page_num]
-        text += page.extract_text()
+    pdf_image = pdf_to_image(file)
+    for img in pdf_image:
+        text += pytesseract.image_to_string(img)
     return text
+
+
+def pdf_to_image(file):
+    images = []
+    pdf_document = fitz.open(file)
+    for page_num in range(len(pdf_document)):
+        page = pdf_document.load_page(page_num)
+        pix = page.get_pixmap()
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        images.append(img)
+    return images
 
 
 '''
@@ -642,10 +655,9 @@ def question_paper_upload():
                 file1.save(pdf_path)
                 images = convert_from_path(pdf_path, size=(200, 282), single_file=True)
                 images[0].save(preview_path, 'PNG')
-                if extension == '.docx':
-                    extracted_text = read_docx(file1)
-                else:
-                    extracted_text = read_pdf(file1)
+
+                pdf_to_image(pdf_path)
+                extracted_text = read_pdf(pdf_path)
                 pdf_name = request.form.get('qp-name')
 
         if 'extract-text' in request.form:
