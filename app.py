@@ -3,13 +3,13 @@ import uuid
 from contextlib import suppress
 from datetime import datetime
 
-import PyPDF2
+import openai
 import fitz.fitz
 import pytesseract
 from PIL import Image
 import docx
 import validators
-from flask import Flask, redirect, url_for, request, flash, send_from_directory, render_template
+from flask import Flask, redirect, url_for, request, flash, send_from_directory, render_template, jsonify
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask_migrate import Migrate
@@ -228,7 +228,7 @@ class ProfileForm(FlaskForm):
                              render_kw={"placeholder": "First Name"})
     last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=10)],
                             render_kw={"placeholder": "Last Name"})
-    department = StringField('Department', validators=[DataRequired(), Length(min=1, max=20)],
+    department = StringField('Department', validators=[DataRequired()],
                              render_kw={"placeholder": "Department"})
     phone_number = StringField('Telephone', validators=[DataRequired(), Length(min=10, max=10)],
                                render_kw={"placeholder": "Phone Number"})
@@ -761,7 +761,8 @@ def student_generate_paper():
             selected_papers.append(question_paper)
 
         print(selected_papers)
-        return render_template('student/studentgeneratepaper.html', selected_papers=selected_papers, search_dict={},fetched_questions=[], selected_paper_ids="--".join([_.id for _ in selected_papers]))
+        return render_template('student/studentgeneratepaper.html', selected_papers=selected_papers, search_dict={},
+                               fetched_questions=[], selected_paper_ids="--".join([_.id for _ in selected_papers]))
 
 
 # @app.route('/combined-papers')
@@ -775,7 +776,7 @@ def display_qp():
 @app.route('/paper-generation', methods=['GET', 'POST'])
 def paper_generation():
     question_paper_ids = request.form.get("question-paper-id").split("--")
-    print(555,question_paper_ids)
+    print(555, question_paper_ids)
     fetched_questions = []
     for qpid in question_paper_ids:
         q_mark = request.form.get(f"{qpid}-marks")
@@ -813,7 +814,27 @@ def paper_generation():
                     fetched_questions.append(_question)
                     continue
     print(fetched_questions)
-    return render_template('student/studentgeneratepaper.html',search_dict={}, fetched_questions=fetched_questions)
+    return render_template('student/studentgeneratepaper.html', search_dict={}, fetched_questions=fetched_questions)
+
+
+@app.route('/ask', methods=['POST'])
+def ask():
+    user_input = request.json['text']
+    response = openai.Completion.create(
+        model="gpt-3.5-turbo-instruct",
+        prompt=user_input,
+        temperature=0.7,
+        max_tokens=300,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0
+    )
+    return jsonify({'response': response.choices[0].text.strip()})
+
+
+@app.route('/pin', methods=['GET', 'POST'])
+def pin():
+    pass
 
 
 # main

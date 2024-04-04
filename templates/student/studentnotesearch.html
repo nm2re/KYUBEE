@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/tailwind_min.css')}}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 
 </head>
 
@@ -111,18 +111,12 @@
             <input type="search" autocomplete="off" id="default-search"
                    class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                    placeholder="Search Question Papers, Notes..." required>
-            <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
 
         </div>
         <div id="search-results" class="relative max-w-4xl mx-auto mt-16"></div>
     </form>
 
 </main>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
-
-
 
 <script>
     const data = {{ search_dict | tojson}};
@@ -152,11 +146,11 @@
 
         results.forEach(([uuid, note_name]) => {
             const div = document.createElement('div');
-            div.classList.add('relative', 'p-2', 'border', 'rounded-md', 'mb-2', 'bg-white');
+            div.classList.add('relative', 'p-2', 'border-black-100', 'rounded-md', 'mb-2', 'bg-gray-800');
 
             const title = document.createElement('p');
             title.textContent = note_name;
-            title.classList.add('text-gray-700', 'mb-2');
+            title.classList.add('ml-2', 'text-white', 'mb-2', 'text-center');
 
             const button = document.createElement('button');
             button.textContent = 'Open';

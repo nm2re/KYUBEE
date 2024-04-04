@@ -7,7 +7,9 @@
     <link rel="shortcut icon" href="/assets/favicon.ico">
     <link rel="stylesheet" href="./main.css">
     <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/tailwind_min.css')}}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 
 </head>
 
@@ -127,61 +129,91 @@
 
             {% if selected_papers|length != 0 %}
                 {% for selected_paper in selected_papers %}
-                    <p class="text-2xl lg:text-5xl font-bold text-gray-800 dark:text-white mt-5 mb-3">
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white mt-5 mb-3">
                         {{ selected_paper.name }}
                     </p>
 
 
-                    <input type="hidden" name="selected-paper" value="{{selected_paper.id}}"/>
-                    <div class="container mx-auto px-4 py-8">
-                        <div class="buttons">
-                            <select name="{{ selected_paper.id }}-marks">
-                                <option selected disabled>Select Marks</option>
-                                <option value="1m">1m</option>
-                                <option value="3m">3m</option>
-                                <option value="5m">5m</option>
-                                <option value="7m">7m</option>
-                                <option value="10m">10m</option>
-                            </select>
-
-                            <select name="{{ selected_paper.id }}-difficulty">
-                                <option selected disabled>Select Difficulty</option>
-                                <option value="easy">Easy</option>
-                                <option value="medium">Medium</option>
-                                <option value="hard">Hard</option>
-                            </select>
-
-                            <select name="{{ selected_paper.id }}-objective">
-                                <option selected disabled>RBT Levels</option>
-                                <option value="remembering">Remembering</option>
-                                <option value="understanding">Understanding</option>
-                                <option value="applying">Applying</option>
-                                <option value="analyzing">Analyzing</option>
-                                <option value="evaluating">Evaluating</option>
-                                <option value="creating">Creating</option>
-                            </select>
-                        </div>
+            <input type="hidden" name="selected-paper" value="{{selected_paper.id}}"/>
+            <div class="container mx-auto px-4 py-8 bg-gray-900 rounded-lg shadow-md">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-4 md:mb-0">
+<!--                        <h2 class="text-xl text-white font-bold">Select Options:</h2>-->
                     </div>
-                {% endfor %}
-                <button type="submit" class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Generate Paper</button>
+                    <div class="flex mx-auto space-x-4">
+                        <select name="{{ selected_paper.id }}-marks" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            <option selected disabled>Select Marks</option>
+                            <option value="1m">1m</option>
+                            <option value="3m">3m</option>
+                            <option value="5m">5m</option>
+                            <option value="7m">7m</option>
+                            <option value="10m">10m</option>
+                        </select>
+                        <select name="{{ selected_paper.id }}-difficulty" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            <option selected disabled>Select Difficulty</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                        <select name="{{ selected_paper.id }}-objective" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            <option selected disabled>RBT Levels</option>
+                            <option value="remembering">Remembering</option>
+                            <option value="understanding">Understanding</option>
+                            <option value="applying">Applying</option>
+                            <option value="analyzing">Analyzing</option>
+                            <option value="evaluating">Evaluating</option>
+                            <option value="creating">Creating</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {% endfor %}
+                <button type="submit" class="text-white mt-5 end-2.5 bottom-1.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Generate Paper</button>
             {% endif %}
 
             {% if fetched_questions|length !=0 %}
 
+                <p class="mb-5 text-center lg:text-5xl text-white font-bold">YOUR GENERATED PAPER</p>
 
-            <textarea name="fetched-questions-area" rows="10" cols="100" class="resize-none w-full p-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold" placeholder="Enter your questions here...">
-                {%for q in fetched_questions %}{{q.details}}{%endfor%}
-            </textarea>
+                <div class="flex justify-between">
+                    <textarea id="fetched-questions-area" name="fetched-questions-area" rows="27" cols="100" class="resize-none mr-8 w-2/3 h-full flex mx-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold" placeholder="Enter your questions here...">
+                        {%for q in fetched_questions %}{{q.details}}
+                        {%endfor%}
+                    </textarea>
 
-            <input type="submit" name="make-pdf" value="Make PDF" class="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    <textarea id="gptAnswers" name="gptAnswers" rows="27" cols="100" class="resize-none w-2/3 h-full flex mx-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold">
+                    </textarea>
+
+                </div>
+                <div class="flex justify-center">
+                    <button onclick="sendToGPT()" name="gpt-answer" class="mt-6 text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 ">Answer</button>
+                </div>
+
 
             {% endif %}
 
         </section>
     </form>
 </main>
+<script>
+    async function sendToGPT() {
+        event.preventDefault();
+        const userInput = document.getElementById('fetched-questions-area').value;
+        const response = await fetch('/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: userInput }),
+        });
+        const data1 = await response.json();
+        document.getElementById('gptAnswers').value = data1.response;
+    }
+</script>
 
 <script>
+
     const data = {{ search_dict | tojson }};
 
     const searchInput = document.getElementById('default-search');
@@ -209,11 +241,11 @@
 
         results.forEach(([uuid, note_name]) => {
             const div = document.createElement('div');
-            div.classList.add('relative', 'p-2', 'border', 'rounded-md', 'mb-2', 'bg-white');
+            div.classList.add('relative', 'p-2', 'border-black-100', 'rounded-md', 'mb-2', 'bg-gray-800');
 
             const title = document.createElement('p');
             title.textContent = note_name;
-            title.classList.add('ml-2', 'text-gray-700', 'mb-2', 'text-center');
+            title.classList.add('ml-2', 'text-white', 'mb-2', 'text-center');
 
             // Checkbox
             const checkbox = document.createElement('input');
@@ -221,7 +253,7 @@
             checkbox.type = 'checkbox';
             checkbox.id = `checkbox-${uuid}`;
             checkbox.value = uuid;
-            checkbox.classList.add('absolute', 'left-2.5', 'top-3.5');
+            checkbox.classList.add('absolute', 'left-2.5', 'top-3.5', 'rounded-lg');
 
             // Open button
             const openButton = document.createElement('button');
