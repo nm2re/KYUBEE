@@ -156,13 +156,44 @@
             button.textContent = 'Open';
             button.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outline-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
             button.addEventListener('click', () => {
-                window.open('/notes-display?pdf=' + uuid, '_blank');
+                window.open('/notes-display?pdf=' + uuid + ".pdf", '_blank');
             });
 
+
+
+            // Pin button
+            const pinButton = document.createElement('button');
+            pinButton.textContent = 'Pin';
+            pinButton.classList.add('text-white', 'absolute', 'right-20', 'bottom-2.5', 'bg-green-700', 'hover:bg-green-800', 'focus:ring-green-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-green-600', 'dark:hover:bg-green-700');
+            pinButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                const isPinned = div.getAttribute('data-pinned') === '1';
+                div.setAttribute('data-pinned', isPinned ? '0' : '1');
+                pinButton.textContent = isPinned ? 'Pin' : 'Unpin';
+                console.log('Pinned:', uuid, !isPinned); // Log the new state
+
+                fetch('/pin-notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ uuid: uuid, isPinned: !isPinned })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response:', data); // Handle response data from Flask
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
             div.appendChild(title);
             div.appendChild(button);
+            div.appendChild(pinButton);
             searchResultsContainer.appendChild(div);
         });
+
+
     }
 </script>
 </body>

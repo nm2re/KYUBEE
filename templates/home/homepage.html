@@ -7,7 +7,6 @@
 	</head>
 	<body class="landing is-preload">
 		<div id="page-wrapper">
-
 			<!-- Header -->
 				<header id="header" class="alt">
 					<h1><a href={{url_for('homepage')}}>KYUBEE</a> </h1>
@@ -26,7 +25,7 @@
 					<h2><img src="../../static/images/logo.png" width="25%" height="15%" alt="logo" ></h2>
 					<ul class="actions special">
 						<li ><a href="{{ url_for('register')}}" class="button primary">Sign Up</a></li>
-						<li><a href="#" class="button">Learn More</a></li>
+						<li><a href="{{ url_for('generic') }}" class="button">Learn More</a></li>
 					</ul>
 				</section>
 
@@ -41,8 +40,7 @@
                         <p>Generate question papers and practice well for your exams <br />
                             with our one click paper generation button .</p>
                     </header>
-<!--                    <span class="image featured"></span>-->
-					<img src="../../static/images/robot.png" alt="" />
+					<img style="width:100%; height:auto;" src="../../static/images/something.png" alt="" />
                 </section>
 
                 <section class="box special features">
@@ -61,13 +59,13 @@
                     <div class="features-row">
                         <section>
                             <span class="icon solid major fa-cloud accent4"></span>
-                            <h3>Rate Notes</h3>
-                            <p>Rate the notes provided by the teacher and review them so that notes others can  get help before accessing the notes</p>
+                            <h3>Pin Notes</h3>
+                            <p>Students can pin their notes and question papers that they require</p>
                         </section>
                         <section>
                             <span class="icon solid major fa-lock accent5"></span>
-                            <h3>Profile View </h3>
-                            <p>Use profile View to see all the notes uploaded by a teacher and her rating.</p>
+                            <h3>AI Generated Answers</h3>
+                            <p>Use GPT-Turbo-3.5 to generate answers for your own customized question papers</p>
                         </section>
                     </div>
                 </section>

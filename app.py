@@ -7,9 +7,8 @@ import openai
 import fitz.fitz
 import pytesseract
 from PIL import Image
-import docx
 import validators
-from flask import Flask, redirect, url_for, request, flash, send_from_directory, render_template, jsonify
+from flask import Flask, redirect, url_for, request, flash, send_from_directory, render_template, jsonify, session
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask_migrate import Migrate
@@ -20,11 +19,14 @@ from sqlalchemy.orm import relationship
 from wtforms import ValidationError
 from wtforms.fields.simple import PasswordField, StringField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
+from gen import Token
 
 app = Flask(__name__)
-
+tokens = Token()
+openai.api_key = tokens.gpt_key
 # -----------------------CONFIG--------------------------
-app.config['SECRET_KEY'] = 'e728db02b86faeb0c569febd00886d06'
+app.config['SECRET_KEY'] = tokens.secret_key
+app.secret_key = tokens.secret_key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 # -----------------------INSTANCES-----------------------
@@ -275,7 +277,12 @@ def student_dashboard():
     else:
         flash('User not found', 'error')
 
-    return render_template('student/studentdashboard.html', current_user=current_user)
+    pinned_items = session.get('pinned_items', [])
+    all_question_papers = question_papers.query.filter(question_papers.QP_ID.in_(pinned_items)).all()
+    all_notes = notes.query.filter(notes.NOTE_ID.in_(pinned_items)).all()
+
+    return render_template('student/studentdashboard.html', current_user=current_user,
+                           all_question_papers=all_question_papers, all_notes=all_notes)
 
 
 @app.route('/teacherdashboard', methods=['GET', 'POST'])
@@ -542,14 +549,6 @@ def pdf_upload():
         return redirect(url_for('upload_notes'))
 
 
-'''
-    - Make new page for questions upload (Teachers)
-    - 3 containers --> pdf, textbox, each div for questions with tags
-    - 
-
-'''
-
-
 @app.route('/upload-notes', methods=['GET', 'POST'])
 def upload_notes():
     return render_template('teacher/notesuploadsection.html')
@@ -585,15 +584,6 @@ def previews(fileName):
 
 
 # ---------------------------------------File Uploading--------------------------------
-
-def read_docx(file):
-    doc = docx.Document(file)
-    text = ''
-    for paragraph in doc.paragraphs:
-        text += paragraph.text + '\n'
-    return text
-
-
 def read_pdf(file):
     text = ''
     pdf_image = pdf_to_image(file)
@@ -612,9 +602,6 @@ def pdf_to_image(file):
         images.append(img)
     return images
 
-
-'''
-'''
 
 questions_list = []
 
@@ -689,7 +676,7 @@ def question_paper_upload():
                     marks = request.form.get(f"{question}-marks")
                     difficulty = request.form.get(f"{question}-difficulty")
                     objective = request.form.get(f"{question}-objective")
-                    print(f"ahhhhhhhhhhhhhhhhhhhhh {question_paper_uuid}")
+                    # print(f"ahhhhhhhhhhhhhhhhhhhhh {question_paper_uuid}")
                     new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question,
                                              Q_TAGS=[marks, difficulty, objective],
                                              QP_ID=question_paper_uuid)
@@ -725,7 +712,7 @@ def student_notes_search():
     # student_department = db.session.query(students).filter_by(STUDENT_ID=current_user.ID).first().DEPARTMENT_ID
     all_notes = db.session.query(notes).all()
     for note in all_notes:
-        search_dict[note.NOTE_ID + ".pdf"] = note.NOTE_NAME
+        search_dict[note.NOTE_ID] = note.NOTE_NAME
 
     return render_template('student/studentnotesearch.html', search_dict=search_dict)
 
@@ -740,32 +727,24 @@ def student_generate_paper():
             search_dict[qp.QP_ID] = qp.QP_NAME
 
         pinned = request.args.get('isPinned')
-        print(f"{pinned}pinned status")
         return render_template('student/studentgeneratepaper.html', search_dict=search_dict, selected_papers=[])
 
     if request.method == "POST":
         selected_papers = []
+        print(0, request.form.getlist('selected'))
         for qp_uuid in request.form.getlist('selected'):
             question_paper = QuestionPaper()
             question_paper.id = qp_uuid
-            print(qp_uuid)
+            print(1,qp_uuid)
             question_paper.name = db.session.query(question_papers).filter_by(QP_ID=qp_uuid).first().QP_NAME
-            print(question_paper.name)
+            print(2,question_paper.name)
 
-            # for question_object in db.session.query(questions).filter_by(QP_ID=qp_uuid).all():
-            #     question = Questions()
-            #     question.id = question_object.Q_ID
-            #     question.details = question_object.Q_DETAILS
-            #     question.tags = question_object.Q_TAGS
-            #     question_paper.questions.append(question)
             selected_papers.append(question_paper)
 
-        print(selected_papers)
+        print(3,selected_papers)
         return render_template('student/studentgeneratepaper.html', selected_papers=selected_papers, search_dict={},
                                fetched_questions=[], selected_paper_ids="--".join([_.id for _ in selected_papers]))
 
-
-# @app.route('/combined-papers')
 
 @app.route('/qp-display', methods=['GET'])
 def display_qp():
@@ -824,7 +803,7 @@ def ask():
         model="gpt-3.5-turbo-instruct",
         prompt=user_input,
         temperature=0.7,
-        max_tokens=300,
+        max_tokens=800,
         top_p=1.0,
         frequency_penalty=0.0,
         presence_penalty=0.0
@@ -832,9 +811,63 @@ def ask():
     return jsonify({'response': response.choices[0].text.strip()})
 
 
-@app.route('/pin', methods=['GET', 'POST'])
+pinned_items = {}
+
+
+@app.route('/pin', methods=['POST'])
+@login_required
 def pin():
-    pass
+    data = request.get_json()
+    uuid = data.get('uuid')
+    is_pinned = data.get('isPinned')
+
+    if 'pinned_items' not in session:
+        session['pinned_items'] = []
+
+    if is_pinned:
+        if uuid not in session['pinned_items']:
+            session['pinned_items'].append(uuid)
+    else:
+        if uuid in session['pinned_items']:
+            session['pinned_items'].remove(uuid)
+
+    session.modified = True
+
+    return jsonify({'message': 'Pinned state updated.', 'uuid': uuid, 'isPinned': is_pinned})
+
+
+@app.route('/pin-notes', methods=['POST'])
+@login_required
+def pin_notes():
+    data = request.get_json()
+    uuid = data.get('uuid')
+    is_pinned = data.get('isPinned')
+
+    if 'pinned_items' not in session:
+        session['pinned_items'] = []
+
+    if is_pinned:
+        if uuid not in session['pinned_items']:
+            session['pinned_items'].append(uuid)
+    else:
+        if uuid in session['pinned_items']:
+            session['pinned_items'].remove(uuid)
+
+    session.modified = True
+
+    return jsonify({'message': 'Pinned state updated.', 'uuid': uuid, 'isPinned': is_pinned})
+
+
+def get_qp_details(_uuid):
+    qp = question_papers.query.filter_by(QP_ID=_uuid).first()
+    note = notes.query.filter_by(NOTE_ID=_uuid).first()
+    if qp:
+        print({'QP_ID': qp.QP_ID, 'QP_NAME': qp.QP_NAME})  # Debug: Print fetched data
+        return {'QP_ID': qp.QP_ID, 'QP_NAME': qp.QP_NAME}
+    elif note:
+        return {'NOTE_ID': qp.NOTE_ID, 'NOTE_NAME': qp.NOTE_NAME}
+    else:
+        return None
 
 
 # main

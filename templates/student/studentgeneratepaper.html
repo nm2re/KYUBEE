@@ -79,19 +79,6 @@
         </div>
     </nav>
 </header>
-<div class="alert bg-opacity-50">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    {% if 'Current User Logged In' in message %}
-    <div class="alert text-white">
-        {{ message }}
-    </div>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-</div>
 
 
 <main class="w-full bg-cover bg-center bg-no-repeat" >
@@ -119,7 +106,7 @@
 
         <div class="flex justify-center align-center">
         <input type="submit" id="submit-papers" name="submit-papers" value="Open Papers"
-               class="text-white end-2.5 bottom-2.5 mt-6 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+               class="text-white end-2.5 bottom-2.5 mt-12 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-3 ml-3 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
         </div>
     </form>
 
@@ -138,7 +125,6 @@
             <div class="container mx-auto px-4 py-8 bg-gray-900 rounded-lg shadow-md">
                 <div class="flex flex-col md:flex-row items-center justify-between">
                     <div class="mb-4 md:mb-0">
-<!--                        <h2 class="text-xl text-white font-bold">Select Options:</h2>-->
                     </div>
                     <div class="flex mx-auto space-x-4">
                         <select name="{{ selected_paper.id }}-marks" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
@@ -177,19 +163,18 @@
                 <p class="mb-5 text-center lg:text-5xl text-white font-bold">YOUR GENERATED PAPER</p>
 
                 <div class="flex justify-between">
-                    <textarea id="fetched-questions-area" name="fetched-questions-area" rows="27" cols="100" class="resize-none mr-8 w-2/3 h-full flex mx-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold" placeholder="Enter your questions here...">
+                    <textarea id="fetched-questions-area" name="fetched-questions-area" rows="27" cols="50" class="resize-none mr-8 flex w-2/3 mx-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold">
                         {%for q in fetched_questions %}{{q.details}}
                         {%endfor%}
                     </textarea>
 
-                    <textarea id="gptAnswers" name="gptAnswers" rows="27" cols="100" class="resize-none w-2/3 h-full flex mx-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold">
+                    <textarea readonly id="gptAnswers" name="gptAnswers" rows="27" cols="60" placeholder="Enter your questions here..." class="resize-none mr-8 flex w-2/3 mx-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 font-semibold placeholder-green-700">
                     </textarea>
 
                 </div>
                 <div class="flex justify-center">
                     <button onclick="sendToGPT()" name="gpt-answer" class="mt-6 text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 ">Answer</button>
                 </div>
-
 
             {% endif %}
 
@@ -214,12 +199,11 @@
 
 <script>
 
-    const data = {{ search_dict | tojson }};
+    const data = {{search_dict | tojson}};
 
     const searchInput = document.getElementById('default-search');
     const searchResultsContainer = document.getElementById('search-results');
 
-    // Event listener for input changes
     searchInput.addEventListener('input', function () {
         const searchTerm = searchInput.value.toLowerCase();
         const filteredResults = Object.entries(data).filter(([uuid, note_name]) => note_name.toLowerCase().includes(searchTerm));
@@ -242,6 +226,7 @@
         results.forEach(([uuid, note_name]) => {
             const div = document.createElement('div');
             div.classList.add('relative', 'p-2', 'border-black-100', 'rounded-md', 'mb-2', 'bg-gray-800');
+            div.setAttribute('data-uuid', uuid); // Ensure each div has a data-uuid attribute
 
             const title = document.createElement('p');
             title.textContent = note_name;
@@ -258,39 +243,49 @@
             // Open button
             const openButton = document.createElement('button');
             openButton.textContent = 'Open';
-            openButton.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outlinex-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
-            openButton.addEventListener('click', () => {
-                window.open('/qp-display?pdf=' + uuid + ".pdf", '_blank');
+            openButton.classList.add('text-white', 'absolute', 'right-2.5', 'bottom-2.5', 'bg-blue-700', 'hover:bg-blue-800', 'focus:ring-4', 'focus:outline-none', 'focus:ring-blue-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-blue-600', 'dark:hover:bg-blue-700', 'dark:focus:ring-blue-800');
+            openButton.addEventListener('click', (event) => {
                 event.preventDefault();
+                window.open('/qp-display?pdf=' + uuid + ".pdf", '_blank');
             });
-
 
             // Pin button
             const pinButton = document.createElement('button');
             pinButton.textContent = 'Pin';
             pinButton.classList.add('text-white', 'absolute', 'right-20', 'bottom-2.5', 'bg-green-700', 'hover:bg-green-800', 'focus:ring-green-300', 'font-medium', 'rounded-lg', 'text-sm', 'px-4', 'py-2', 'dark:bg-green-600', 'dark:hover:bg-green-700');
-            pinButton.addEventListener('click', () => {
-                // Toggle the pinned state on click
+            pinButton.addEventListener('click', (event) => {
+                event.preventDefault();
                 const isPinned = div.getAttribute('data-pinned') === '1';
                 div.setAttribute('data-pinned', isPinned ? '0' : '1');
-                // Optionally, change the button text to reflect the state
                 pinButton.textContent = isPinned ? 'Pin' : 'Unpin';
                 console.log('Pinned:', uuid, !isPinned); // Log the new state
+
+                fetch('/pin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ uuid: uuid, isPinned: !isPinned })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response:', data); // Handle response data from Flask
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             });
+
 
             div.appendChild(title);
             div.appendChild(checkbox);
             div.appendChild(openButton);
-            div.appendChild(pinButton); // Append the pin button next to the open button
+            div.appendChild(pinButton);
             searchResultsContainer.appendChild(div);
         });
     }
 </script>
 </body>
 </html>
-
-<!--<input id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">-->
-
-<!--<button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>-->
 
 
