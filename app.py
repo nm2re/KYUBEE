@@ -249,7 +249,6 @@ def contact_page():
     email = request.form.get('email')
     subject = request.form.get('subject')
     message = request.form.get('message')
-    print(name, email, subject, message)
 
     if name and email and subject and message:
         person = contact(NAME=name, EMAIL=email, MESSAGE=message, SUBJECT=subject)
@@ -288,8 +287,6 @@ def student_dashboard():
 @app.route('/teacherdashboard', methods=['GET', 'POST'])
 @login_required
 def teacher_dashboard():
-    print(current_user.EMAIL)
-    print(current_user.type)
 
     if current_user:
         flash(f"Current User Logged In: {current_user.EMAIL} Type: {current_user.type}", 'error')
@@ -315,7 +312,6 @@ def teacher_dashboard():
         </div>
         '''
     all_question_papers = db.session.query(question_papers).all()
-    print(all_question_papers)
     for qp in all_question_papers:
         all_qp_string += f'''
         <div class="bg-white rounded-lg shadow">
@@ -354,7 +350,6 @@ def student_account():
     if new_email or new_first_name or new_last_name or new_phone_number:
         check_email = db.session.query(students).filter_by(
             STUDENT_EMAIL=new_email).first()  # if there exists an email similar to new email
-        print(check_email)
         if new_email != current_user.EMAIL and check_email is None:
             if validators.email(new_email):
                 db.session.query(student_login).filter_by(ID=current_user.ID).update({"EMAIL": new_email})
@@ -450,7 +445,7 @@ def teacher_profile(login_uuid):
         return redirect(url_for('login'))
     else:
         print('hello')
-        print(form.errors)
+
     return render_template('login_register/teacherregister.html', form=form, login_uuid=login_uuid)
 
 
@@ -493,8 +488,6 @@ def register():
         selected_user = request.form.get('users')
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
 
-        print(f"---{selected_user}-------")
-        print(request.form)
         if selected_user == "Student":
 
             login_uuid = str(uuid.uuid4())
@@ -528,8 +521,6 @@ def pdf_upload():
         teacher_storage = 'zfile_processing/teacher_pdf_storing'
         preview_storage = 'zfile_processing/previews'
         pdf_file = request.files['file_input']
-        print(pdf_file.name)
-        print(pdf_file.filename)
         if pdf_file and pdf_file.filename.endswith('.pdf'):
             pdf_uuid = str(uuid.uuid4())
             pdf_name = request.form.get('pdf-name')
@@ -611,13 +602,9 @@ def question_paper_upload():
     question_paper_uuid = ''
     extracted_text = ''
     if request.method == 'POST':
-        print("HERE HERE HERE")
         with suppress(IndexError):
             for question in questions_list:
-                print(f"QUESTION: {question}")
                 difficulty = request.form.get(f"{question}-difficulty")
-                print(f"Difficulty: {difficulty}")
-                print("\n\n")
 
         pdf_name = ''
         pdf_uuid = ''
@@ -649,7 +636,6 @@ def question_paper_upload():
 
         if 'extract-text' in request.form:
             question_paper_uuid = pdf_uuid
-            print("this is executed")
             new_question_paper = question_papers(QP_ID=question_paper_uuid, TEACHER_ID=current_user.ID, FILE_TYPE='pdf',
                                                  DATE_CREATED=datetime.now(), QP_NAME=pdf_name)
             db.session.add(new_question_paper)
@@ -661,8 +647,6 @@ def question_paper_upload():
             for i in input_text.split('\r\n'):
                 if i:
                     questions_list.append(i)
-            print(input_text)
-            print(123, request.form.get('question-paper-id'))
 
         # ---------------------------------Submit Questions---------------------------------
 
@@ -676,7 +660,6 @@ def question_paper_upload():
                     marks = request.form.get(f"{question}-marks")
                     difficulty = request.form.get(f"{question}-difficulty")
                     objective = request.form.get(f"{question}-objective")
-                    # print(f"ahhhhhhhhhhhhhhhhhhhhh {question_paper_uuid}")
                     new_question = questions(Q_ID=str(uuid.uuid4()), Q_DETAILS=question,
                                              Q_TAGS=[marks, difficulty, objective],
                                              QP_ID=question_paper_uuid)
@@ -731,17 +714,13 @@ def student_generate_paper():
 
     if request.method == "POST":
         selected_papers = []
-        print(0, request.form.getlist('selected'))
         for qp_uuid in request.form.getlist('selected'):
             question_paper = QuestionPaper()
             question_paper.id = qp_uuid
-            print(1,qp_uuid)
             question_paper.name = db.session.query(question_papers).filter_by(QP_ID=qp_uuid).first().QP_NAME
-            print(2,question_paper.name)
 
             selected_papers.append(question_paper)
 
-        print(3,selected_papers)
         return render_template('student/studentgeneratepaper.html', selected_papers=selected_papers, search_dict={},
                                fetched_questions=[], selected_paper_ids="--".join([_.id for _ in selected_papers]))
 
@@ -755,16 +734,11 @@ def display_qp():
 @app.route('/paper-generation', methods=['GET', 'POST'])
 def paper_generation():
     question_paper_ids = request.form.get("question-paper-id").split("--")
-    print(555, question_paper_ids)
     fetched_questions = []
     for qpid in question_paper_ids:
         q_mark = request.form.get(f"{qpid}-marks")
         q_difficulty = request.form.get(f"{qpid}-difficulty")
         q_objective = request.form.get(f"{qpid}-objective")
-
-        print(q_mark)
-        print(q_difficulty)
-        print(q_objective)
 
         query = db.session.query(questions).filter_by(QP_ID=qpid).all()
         for question in query:
@@ -792,7 +766,6 @@ def paper_generation():
                     _question.tags = question.Q_TAGS
                     fetched_questions.append(_question)
                     continue
-    print(fetched_questions)
     return render_template('student/studentgeneratepaper.html', search_dict={}, fetched_questions=fetched_questions)
 
 
@@ -862,7 +835,7 @@ def get_qp_details(_uuid):
     qp = question_papers.query.filter_by(QP_ID=_uuid).first()
     note = notes.query.filter_by(NOTE_ID=_uuid).first()
     if qp:
-        print({'QP_ID': qp.QP_ID, 'QP_NAME': qp.QP_NAME})  # Debug: Print fetched data
+        # print({'QP_ID': qp.QP_ID, 'QP_NAME': qp.QP_NAME})  # Debug: Print fetched data
         return {'QP_ID': qp.QP_ID, 'QP_NAME': qp.QP_NAME}
     elif note:
         return {'NOTE_ID': qp.NOTE_ID, 'NOTE_NAME': qp.NOTE_NAME}
